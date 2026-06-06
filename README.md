@@ -7,199 +7,245 @@
 </p>
 
 <p align="center">
-  MCPify is an AI enablement compiler that analyzes existing applications and generates secure, agent-ready abstractions.
+  MCPify analyzes real application code and generates agent-ready MCP surfaces with workflows, permissions, and security metadata.
 </p>
 
 <p align="center">
-  <a href="#installation">Installation</a> ·
-  <a href="#quick-start">Quick Start</a> ·
-  <a href="#features">Features</a> ·
-  <a href="#roadmap">Roadmap</a>
+  <a href="#overview">Overview</a> ·
+  <a href="#getting-started">Getting Started</a> ·
+  <a href="#cli">CLI</a> ·
+  <a href="#generated-output">Generated Output</a>
 </p>
 
 ## Overview
 
-MCPify is designed to turn real software into AI-native, permission-aware systems. Instead of manually writing MCP servers, tool schemas, workflow wrappers, and synchronization logic, MCPify analyzes your backend, frontend, APIs, database models, workflows, and permissions to generate structured AI-operable interfaces.
-Modern products are still designed around human interaction. MCPify bridges that gap by making applications easier for AI agents to understand and operate.
+MCPify is an AI enablement compiler for existing software systems. It scans the parts of an application that matter to agents:
 
-## Installation
+- backend routes, controllers, and services
+- frontend actions and form submissions
+- OpenAPI and Swagger specifications
+- Prisma, Drizzle, and Mongoose data models
+- event-driven entry points such as webhooks, Kafka, RabbitMQ, and EventEmitter listeners
+- multi-step workflows inferred from the discovered tool graph
 
-```bash
-npm install -g mcpify
-```
+From that analysis, MCPify generates a runnable MCP server plus the metadata an agent needs to use it safely.
 
-If you prefer not to install globally, you can also run it on demand:
+## What MCPify Produces
 
-```bash
-npx mcpify
-```
+Running the compiler creates an output directory, `./.mcpify` by default, containing:
 
-## Quick Start
+- `server.ts` - MCP server entry point
+- `handlers.ts` - generated handler stubs and bound handlers
+- `tools.ts` - tool metadata and JSON schema definitions
+- `workflows.ts` - inferred workflow definitions
+- `schemas.ts` - Zod-based input schemas
+- `AGENTS.md` - agent-facing usage and permission guide
+- `package.json` and `tsconfig.json` - standalone build files for the generated server
 
-```bash
-npx mcpify
-```
+## Getting Started
 
-MCPify scans your project and generates AI-operable outputs from:
-
-- frontend code
-- backend code
-- APIs and OpenAPI specs
-- database models and schemas
-- workflows and events
-- permissions and safety boundaries
-
-It can then produce:
-
-- MCP servers
-- AI tools
-- semantic workflows
-- safe actions
-- permission-aware interfaces
-- synchronized AI metadata
-
-## Features
-
-### Application Understanding
-
-MCPify looks beyond raw functions and endpoints. It aims to interpret intent, workflow structure, UI interactions, and operational boundaries.
-
-### Frontend Extraction
-
-It can analyze React, Next.js, Vue, and Angular applications to identify buttons, forms, routes, state mutations, and user-facing actions.
-
-### Backend and API Analysis
-
-It scans TypeScript, JavaScript, services, controllers, SDKs, and OpenAPI definitions to generate structured tool and workflow abstractions.
-
-### Workflow Extraction
-
-MCPify can infer multi-step flows such as login, checkout, ticket creation, and order management, then package them into reusable AI workflows.
-
-### Database Awareness
-
-It supports schema-level analysis for tools built on Prisma, Drizzle, Mongoose, SQLAlchemy, and PostgreSQL.
-
-### Safety and Permissions
-
-Every generated action can be classified with permissions, approval requirements, and safety boundaries.
-
-### Synchronization
-
-Generated definitions stay aligned with source code as the application evolves.
-
-## Example
+This repository is a private monorepo, so the easiest way to try MCPify is from source:
 
 ```bash
-npx mcpify swagger.json
+npm install
+npm run build
 ```
 
-Example output:
+Run the CLI against one of the included examples:
 
-```txt
-refundOrder(orderId)
-  - schema
-  - validation
-  - permissions
-  - AI metadata
+```bash
+npm run mcpify -- analyze ./examples/express-api
 ```
 
-## Architecture
+Analyze a larger example with optional sources:
 
-```txt
-Application
-  ↓
-Static Analysis Engine
-  ↓
-Semantic Understanding Layer
-  ↓
-Workflow Extraction
-  ↓
-Safety and Permission Layer
-  ↓
-MCP Generation
-  ↓
-AI-Operable System
+```bash
+npm run mcpify -- analyze ./examples/ecommerce-saas \
+  --prisma ./examples/ecommerce-saas/prisma/schema.prisma
 ```
 
-## Stack
+After generation:
 
-| Area | Technology |
-| --- | --- |
-| CLI | commander.js |
-| AST Parsing | ts-morph |
-| Validation | zod |
-| Frontend Parsing | Babel / SWC |
-| MCP Integration | MCP SDK |
-| Formatting | prettier |
-| OpenAPI Parsing | swagger-parser |
-| Knowledge Graph | Neo4j / graphlib |
-| AI Enhancement | OpenAI API |
+```bash
+cd .mcpify
+npm install
+npm run build
+```
+
+The generated `AGENTS.md` explains how to connect the compiled server to an MCP client.
+
+## CLI
+
+The current CLI surface in this repo includes:
+
+### `analyze [path]`
+
+Default command. Runs the full pipeline:
+
+- backend analysis
+- optional OpenAPI, Prisma, Drizzle, and Mongoose analysis
+- event and webhook discovery
+- optional frontend extraction
+- workflow detection
+- permission classification
+- MCP server generation
+
+Example:
+
+```bash
+npm run mcpify -- analyze . \
+  --swagger ./tests/fixtures/swagger/petstore.yaml \
+  --prisma ./tests/fixtures/prisma/simple.prisma \
+  --watch
+```
+
+Useful flags:
+
+- `--output <dir>` to change the generated output directory
+- `--no-frontend` to skip UI action extraction
+- `--no-events` to skip webhook and listener analysis
+- `--no-workflows` to skip workflow detection
+- `--ai-enhance` to improve tool descriptions when `ANTHROPIC_API_KEY` is set
+
+### `interactive`
+
+Prompts for which analyzers to run and which source files to include.
+
+```bash
+npm run mcpify -- interactive
+```
+
+### `frontend [path]`
+
+Extracts UI actions only and can print raw JSON.
+
+```bash
+npm run mcpify -- frontend ./examples/internal-tool --json
+```
+
+### `swagger <file>`
+
+Converts an OpenAPI or Swagger spec directly into MCP tools.
+
+```bash
+npm run mcpify -- swagger ./tests/fixtures/swagger/petstore.yaml
+```
+
+### `audit [path]`
+
+Runs a static safety audit over the discovered tools and workflows without generating files.
+
+```bash
+npm run mcpify -- audit ./examples/express-api
+```
+
+### `simulate [path]`
+
+Runs the static audit and, when `ANTHROPIC_API_KEY` is available, executes an AI simulation battery against the discovered tool surface.
+
+```bash
+npm run mcpify -- simulate ./examples/express-api
+```
+
+## Supported Analysis Surface
+
+### Backend
+
+The backend analyzer scans TypeScript and JavaScript code to extract callable actions from services, controllers, and route handlers.
+
+The repo currently includes analyzers and tests around:
+
+- general backend extraction
+- OpenAPI and Swagger conversion
+- Prisma schema analysis
+- Drizzle table analysis
+- Mongoose schema and model analysis
+
+### Frontend
+
+Frontend extraction is focused on user-triggered intent:
+
+- React and JSX handlers
+- Vue templates
+- Svelte components
+- Angular inline templates
+- form submissions and navigational actions
+
+### Events
+
+The event analyzer looks for agent-relevant asynchronous entry points such as:
+
+- webhooks
+- EventEmitter listeners
+- Kafka consumers
+- RabbitMQ consumers
+
+### Workflows
+
+The workflow engine uses the discovered tool set to infer multi-step actions such as checkout, approval, request handling, and other composed flows.
+
+### Permissions and Safety
+
+Every generated tool is classified into one of three permission states:
+
+- `SAFE`
+- `REQUIRES_CONFIRMATION`
+- `BLOCKED`
+
+Those classifications flow into the generated MCP server and the generated `AGENTS.md` guide so agent runtimes know what can be called directly and what requires a human checkpoint.
+
+## Generated Output
+
+The compiler output is meant to be inspected and extended, not treated as opaque codegen.
+
+`handlers.ts` is especially important: it contains the generated handler registry and any bound backend handlers, and it is the place where business logic can be completed or refined.
+
+The generated server:
+
+- exposes non-blocked tools through MCP
+- exposes detected workflows as callable tools
+- validates inputs with generated schemas
+- preserves permission metadata for agent-facing safety
 
 ## Repository Structure
 
 ```txt
 mcpify/
-├── packages/
-│   ├── cli/
-│   ├── backend-analyzer/
-│   ├── frontend-analyzer/
-│   ├── workflow-engine/
-│   ├── schema-engine/
-│   ├── mcp-generator/
-│   ├── permissions/
-│   ├── security/
-│   ├── ai-enhancer/
-│   ├── graph-engine/
-│   └── templates/
+  apps/
+  docs/
+  examples/
+  landingPage/
+  packages/
+    ai-enhancer/
+    backend-analyzer/
+    cli/
+    event-analyzer/
+    frontend-analyzer/
+    graph-engine/
+    mcp-generator/
+    monitoring/
+    permissions/
+    schema-engine/
+    security/
+    sync-engine/
+    workflow-engine/
+  tests/
 ```
 
-## Roadmap
+## Examples
 
-### Phase 1 - MVP
+The repository includes example projects you can compile today:
 
-- backend analysis
-- schema generation
-- MCP generation
-- OpenAPI support
-- frontend action extraction
+- `examples/express-api`
+- `examples/ecommerce-saas`
+- `examples/internal-tool`
+- `examples/nestjs-app`
+- `examples/swagger-only`
 
-### Phase 2
+## Current Status
 
-- workflow understanding
-- semantic UI understanding
-- permissions
-- audit system
-
-### Phase 3
-
-- knowledge graph
-- event systems
-- synchronization engine
-- AI simulations
-
-### Phase 4
-
-- enterprise deployment
-- hosted platform
-- monitoring
-- analytics
-- AI operating layer
-
-## Why MCPify
-
-Traditional AI integrations require teams to manually expose APIs, build MCP servers, define tool schemas, add safety layers, and keep everything in sync. MCPify is intended to reduce that overhead by compiling application structure into AI-ready operations.
-
-## Taglines
-
-- Compile software into AI-operable systems.
-- Turn applications into AI-native environments.
-- The AI interface layer for software.
-- Make any application usable by AI agents.
-- From software to AI-operable systems instantly.
+This repo already contains working analyzers, tests, and generator output for the core compiler path. Some of the broader product language in the landing page points toward the roadmap, but the source of truth for implemented CLI behavior is the code under `packages/cli` and the generator stack under `packages/*`.
 
 ## License
 
-This project is intended to be licensed under Creative Commons Attribution 4.0 International (CC BY 4.0).
-
-If you want a more conventional software license for package distribution, consider MIT or Apache 2.0 instead.
+See [LICENSE](LICENSE).

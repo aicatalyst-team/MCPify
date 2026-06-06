@@ -1,0 +1,16 @@
+# Claude Desktop
+
+Build the generated server, then add it to Claude Desktop's MCP configuration.
+
+```json
+{
+  "mcpServers": {
+    "mcpify-demo": {
+      "command": "node",
+      "args": ["/absolute/path/to/.mcpify-demo/dist/.mcpify-demo/server.js"]
+    }
+  }
+}
+```
+
+Restart Claude Desktop after editing the config.

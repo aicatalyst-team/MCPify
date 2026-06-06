@@ -1,0 +1,14 @@
+# Codex
+
+MCPify-generated servers can be used with Codex anywhere MCP server configuration is supported.
+
+Recommended flow:
+
+```bash
+mcpify analyze ./app --output .mcpify
+cd .mcpify
+npm install
+npm run build
+```
+
+Point Codex at the generated `dist/<project-name>/server.js` file and keep `agents.md` nearby as the tool guide.

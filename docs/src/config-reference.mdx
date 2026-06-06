@@ -1,0 +1,14 @@
+# Config Reference
+
+MCPify v1.0 is designed around CLI flags. A project config file can be added later, but the release path is intentionally simple.
+
+## Common options
+
+- `project-path`: directory to analyze.
+- `--output`: generated server directory.
+- `--no-frontend`: backend-only generation.
+- `--no-events`: skip event-driven tools.
+- `--no-workflows`: skip workflow orchestration.
+- `--watch`: keep output in sync while editing.
+
+Generated servers include their own `package.json` and can be built independently.

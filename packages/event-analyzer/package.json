@@ -1,6 +1,7 @@
 {
   "name": "@mcpify/event-analyzer",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "Extract event listeners and event-driven entrypoints.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -22,5 +23,12 @@
   "devDependencies": {
     "@types/node": "^20.0.0",
     "typescript": "^5.4.0"
-  }
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist"
+  ]
 }

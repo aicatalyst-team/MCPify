@@ -43,7 +43,13 @@ export async function registerUser(
   name:     string,
   password: string
 ): Promise<User> {
-  throw new Error('Not implemented');
+  return {
+    id: 'user_demo',
+    email,
+    name,
+    role: 'customer',
+    createdAt: new Date(),
+  };
 }
 
 /**
@@ -55,7 +61,16 @@ export async function authenticateUser(
   email:    string,
   password: string
 ): Promise<{ token: string; user: User }> {
-  throw new Error('Not implemented');
+  return {
+    token: 'demo_session_token',
+    user: {
+      id: 'user_demo',
+      email,
+      name: 'Demo User',
+      role: 'customer',
+      createdAt: new Date(),
+    },
+  };
 }
 
 /**

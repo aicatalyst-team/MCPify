@@ -1,0 +1,24 @@
+# CLI Reference
+
+## analyze
+
+```bash
+mcpify analyze <project-path> --output .mcpify
+```
+
+Scans the target project and writes a generated MCP server.
+
+## Useful flags
+
+- `--output <dir>`: output directory for generated server files.
+- `--no-frontend`: skip frontend action analysis.
+- `--no-events`: skip event listener analysis.
+- `--no-workflows`: skip workflow detection.
+- `--watch`: re-run analysis when source files change.
+- `--ai`: enable optional AI enhancement when an API key is configured.
+
+When using the monorepo directly, run the CLI through:
+
+```bash
+npm run mcpify -- analyze <project-path> --output .mcpify
+```

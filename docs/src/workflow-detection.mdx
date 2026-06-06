@@ -1,0 +1,11 @@
+# Workflow Detection
+
+MCPify analyzes call relationships and groups multi-step behavior into workflows.
+
+Examples include checkout flows, support flows, admin operations, and chained service calls.
+
+Generated workflow handlers execute each step in order and return structured results for the agent client. Workflows can be disabled with:
+
+```bash
+mcpify analyze ./app --no-workflows
+```

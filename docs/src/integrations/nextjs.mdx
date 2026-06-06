@@ -1,0 +1,9 @@
+# Next.js
+
+For Next.js apps, run MCPify against service directories, route handlers, or app code that contains exported backend functions.
+
+```bash
+mcpify analyze ./src --output .mcpify
+```
+
+Use `--no-frontend` when you only want server actions, route handlers, services, or database access logic. Keep generated servers out of production request paths unless you have reviewed permissions.

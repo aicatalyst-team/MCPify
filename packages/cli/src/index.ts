@@ -11,7 +11,7 @@ const program = new Command();
 program
   .name('mcpify')
   .description('Compile software into AI-operable systems')
-  .version('0.1.0');
+  .version('1.0.0');
 
 // ── Default: full analysis ────────────────────────────────────────────────────
 program

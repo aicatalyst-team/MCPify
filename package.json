@@ -1,7 +1,7 @@
 {
   "name": "mcpify",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "workspaces": [
     "packages/schema-engine",
@@ -26,7 +26,9 @@
     "mcpify": "node packages/cli/dist/index.js"
   },
   "devDependencies": {
-    "typescript": "^5.4.0",
-    "@types/node": "^20.0.0"
-  }
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0"
+  },
+  "license": "MIT",
+  "description": "Turn app code into Model Context Protocol servers."
 }

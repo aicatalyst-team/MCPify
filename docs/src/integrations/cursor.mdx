@@ -1,0 +1,16 @@
+# Cursor
+
+Generate and build an MCPify server, then add the server command to Cursor's MCP settings.
+
+```json
+{
+  "mcpServers": {
+    "mcpify-demo": {
+      "command": "node",
+      "args": ["/absolute/path/to/.mcpify-demo/dist/.mcpify-demo/server.js"]
+    }
+  }
+}
+```
+
+Use the generated `agents.md` file as the tool reference inside Cursor.

@@ -1,0 +1,11 @@
+# Permission System
+
+MCPify assigns permission levels to generated tools so agents can reason about risk before invoking application behavior.
+
+## Levels
+
+- `SAFE`: read-only or low-risk operations.
+- `REQUIRES_CONFIRMATION`: writes, payments, admin operations, and other sensitive actions.
+- `BLOCKED`: actions that should not be exposed by default.
+
+The permission output is generated alongside the server and can be reviewed before wiring the server into an MCP client.

@@ -48,7 +48,18 @@ export async function createSupportRequest(
   body:       string,
   orderId?:   string
 ): Promise<SupportTicket> {
-  throw new Error('Not implemented');
+  const now = new Date();
+  return {
+    id: 'ticket_demo',
+    customerId,
+    orderId,
+    subject,
+    body,
+    status: 'open',
+    priority: 'medium',
+    createdAt: now,
+    updatedAt: now,
+  };
 }
 
 /**

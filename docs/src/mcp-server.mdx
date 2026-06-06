@@ -1,0 +1,16 @@
+# Generated MCP Server
+
+MCPify generates a standalone TypeScript MCP server project.
+
+## Output structure
+
+- `package.json`: installable generated server package.
+- `tsconfig.json`: TypeScript build config.
+- `<project>/server.ts`: MCP server entrypoint.
+- `<project>/tools.ts`: MCP tool definitions.
+- `<project>/handlers.ts`: handler registry and source bindings.
+- `<project>/workflows.ts`: detected workflow definitions.
+- `<project>/permissions.ts`: permission metadata.
+- `agents.md`: generated guide for agent clients.
+
+Handlers bind to matching exports from analyzed source files when possible, so generated tools can call real app logic instead of demo-only stubs.

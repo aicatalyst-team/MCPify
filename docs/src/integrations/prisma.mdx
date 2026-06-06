@@ -1,0 +1,13 @@
+# Prisma
+
+MCPify can analyze service functions that call Prisma clients and expose safe operations as MCP tools.
+
+Recommended pattern:
+
+- Keep database access behind exported service functions.
+- Generate from the service directory, not the raw schema alone.
+- Review generated permissions before running write operations through an agent.
+
+```bash
+mcpify analyze ./src/services --output .mcpify
+```

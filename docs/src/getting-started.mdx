@@ -1,0 +1,27 @@
+# Getting Started
+
+## Install from the repository
+
+```bash
+npm install
+npm run build
+```
+
+## Generate an MCP server
+
+```bash
+npm run mcpify -- analyze ./examples/ecommerce-saas/src/services --output .mcpify-demo --no-frontend --no-events
+```
+
+The generated project contains its own `package.json`, TypeScript config, server entrypoint, tool definitions, handlers, workflows, permissions, and agent guide.
+
+## Run the generated server
+
+```bash
+cd .mcpify-demo
+npm install
+npm run build
+npm start
+```
+
+Use the generated `dist/<project-name>/server.js` path in your MCP client configuration.

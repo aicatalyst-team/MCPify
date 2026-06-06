@@ -1,0 +1,26 @@
+# MCPify
+
+MCPify turns application code into Model Context Protocol servers. It scans backend services, frontend actions, events, and workflows, then generates a runnable MCP server with typed tool definitions and permission metadata.
+
+## What v1.0 includes
+
+- Backend service analysis for TypeScript and JavaScript projects.
+- Frontend intent extraction for React, Vue, Svelte, and Angular.
+- Event listener and workflow detection.
+- Permission inference for safe, confirmation-required, and blocked tools.
+- MCP server generation with bindable handlers for real source functions.
+- CLI-first workflow for demos, local agents, Claude Desktop, Cursor, and Codex.
+
+## Quick Start
+
+```bash
+npm install
+npm run build
+npm run mcpify -- analyze examples/ecommerce-saas/src/services --output .mcpify-demo --no-frontend --no-events
+cd .mcpify-demo
+npm install
+npm run build
+npm start
+```
+
+See [Getting Started](./getting-started) for the complete flow.

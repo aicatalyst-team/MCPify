@@ -1,6 +1,6 @@
 {
   "name": "@mcpify/cli",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "bin": {
     "mcpify": "./dist/index.js"
@@ -31,5 +31,13 @@
   "devDependencies": {
     "@types/node": "^20.0.0",
     "typescript": "^5.4.0"
-  }
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist"
+  ],
+  "description": "Command-line interface for turning app code into MCP servers."
 }
