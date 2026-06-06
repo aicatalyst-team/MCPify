@@ -201,4 +201,6 @@ Traditional AI integrations require teams to manually expose APIs, build MCP ser
 
 ## License
 
-This project does not currently declare a license in the repository. Add one before publishing or distributing the package publicly.
+This project is intended to be licensed under Creative Commons Attribution 4.0 International (CC BY 4.0).
+
+If you want a more conventional software license for package distribution, consider MIT or Apache 2.0 instead.
