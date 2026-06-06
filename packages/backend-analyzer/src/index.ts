@@ -14,6 +14,7 @@ import {
   Node,
   SourceFile,
   JSDoc,
+  type ObjectLiteralExpression,
 } from 'ts-morph';
 import path from 'path';
 import fs from 'fs/promises';
@@ -380,4 +381,276 @@ export class PrismaAnalyzer {
       isAsync:     true,
     };
   }
+}
+
+// DrizzleAnalyzer - Drizzle table definitions -> CRUD ExtractedTool[]
+
+export class DrizzleAnalyzer {
+  constructor(private targetPath: string) {}
+
+  async extract(): Promise<ExtractedTool[]> {
+    const files = await this._resolveFiles();
+    const tools: ExtractedTool[] = [];
+
+    const project = new Project({
+      skipAddingFilesFromTsConfig: true,
+      compilerOptions: {
+        allowJs: true,
+        checkJs: false,
+      },
+    });
+
+    project.addSourceFilesAtPaths(files);
+
+    for (const sourceFile of project.getSourceFiles()) {
+      for (const declaration of sourceFile.getVariableDeclarations()) {
+        const initializer = declaration.getInitializer();
+        if (!initializer || !Node.isCallExpression(initializer)) continue;
+
+        const callee = initializer.getExpression().getText();
+        if (!/(^|\.)(pgTable|sqliteTable|mysqlTable)$/.test(callee)) continue;
+
+        const args = initializer.getArguments();
+        const columnsArg = args[1];
+        if (!columnsArg || !Node.isObjectLiteralExpression(columnsArg)) continue;
+
+        const modelName = singularPascal(declaration.getName());
+        const fields = columnsArg.getProperties().flatMap(property => {
+          if (!Node.isPropertyAssignment(property)) return [];
+          const name = property.getName().replace(/^['"]|['"]$/g, '');
+          const type = drizzleColumnType(property.getInitializer()?.getText() ?? '');
+          return [{ name, type }];
+        });
+
+        tools.push(...databaseTools(modelName, fields, sourceFile.getFilePath()));
+      }
+    }
+
+    return dedupeTools(tools);
+  }
+
+  private async _resolveFiles(): Promise<string[]> {
+    const stat = await fs.stat(this.targetPath).catch(() => null);
+    if (!stat) return [];
+    if (stat.isFile()) return [this.targetPath];
+
+    return glob('**/*.{ts,tsx,js,jsx}', {
+      cwd: this.targetPath,
+      absolute: true,
+      ignore: [
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/.mcpify/**',
+        '**/*.test.*',
+        '**/*.spec.*',
+      ],
+    });
+  }
+}
+
+// MongooseAnalyzer - Mongoose Schema/model declarations -> CRUD ExtractedTool[]
+
+export class MongooseAnalyzer {
+  constructor(private targetPath: string) {}
+
+  async extract(): Promise<ExtractedTool[]> {
+    const files = await this._resolveFiles();
+    const tools: ExtractedTool[] = [];
+
+    const project = new Project({
+      skipAddingFilesFromTsConfig: true,
+      compilerOptions: {
+        allowJs: true,
+        checkJs: false,
+      },
+    });
+
+    project.addSourceFilesAtPaths(files);
+
+    for (const sourceFile of project.getSourceFiles()) {
+      const schemas = new Map<string, DbField[]>();
+
+      for (const declaration of sourceFile.getVariableDeclarations()) {
+        const initializer = declaration.getInitializer();
+        const fields = initializer ? mongooseSchemaFields(initializer) : [];
+        if (fields.length > 0) schemas.set(declaration.getName(), fields);
+      }
+
+      for (const call of sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression)) {
+        const expression = call.getExpression().getText();
+        if (expression !== 'model' && expression !== 'mongoose.model') continue;
+
+        const args = call.getArguments();
+        const modelArg = args[0];
+        const schemaArg = args[1];
+        if (!modelArg || !Node.isStringLiteral(modelArg) || !schemaArg) continue;
+
+        const modelName = singularPascal(modelArg.getLiteralText());
+        const fields = Node.isIdentifier(schemaArg)
+          ? schemas.get(schemaArg.getText()) ?? []
+          : mongooseSchemaFields(schemaArg);
+
+        if (fields.length > 0) {
+          tools.push(...databaseTools(modelName, fields, sourceFile.getFilePath()));
+        }
+      }
+    }
+
+    return dedupeTools(tools);
+  }
+
+  private async _resolveFiles(): Promise<string[]> {
+    const stat = await fs.stat(this.targetPath).catch(() => null);
+    if (!stat) return [];
+    if (stat.isFile()) return [this.targetPath];
+
+    return glob('**/*.{ts,tsx,js,jsx}', {
+      cwd: this.targetPath,
+      absolute: true,
+      ignore: [
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/.mcpify/**',
+        '**/*.test.*',
+        '**/*.spec.*',
+      ],
+    });
+  }
+}
+
+interface DbField {
+  name: string;
+  type: string;
+}
+
+function databaseTools(modelName: string, fields: DbField[], filePath: string): ExtractedTool[] {
+  const idField = fields.find(field => field.name === 'id' || field.name === '_id') ?? fields[0];
+  const idParam = idField?.name ?? 'id';
+  const noun = modelName.toLowerCase();
+  const writableFields = fields.filter(field => field.name !== 'id' && field.name !== '_id');
+
+  const tools: ExtractedTool[] = [
+    databaseTool(`get${modelName}ById`, `Fetch a single ${noun} by ${idParam}`, [idParam], ['string'], filePath),
+    databaseTool(`list${modelName}s`, `List all ${noun}s with optional pagination`, ['skip', 'take'], ['number', 'number'], filePath),
+    databaseTool(`create${modelName}`, `Create a new ${noun} record`, writableFields.map(field => field.name), writableFields.map(field => field.type), filePath),
+    databaseTool(`update${modelName}`, `Update an existing ${noun}`, [idParam, 'data'], ['string', 'object'], filePath),
+    databaseTool(`delete${modelName}`, `Delete a ${noun} record`, [idParam], ['string'], filePath),
+  ];
+
+  for (const field of fields) {
+    if (!['status', 'email', 'slug', 'role'].includes(field.name)) continue;
+    tools.push(databaseTool(
+      `get${modelName}sBy${pascal(field.name)}`,
+      `List ${noun}s filtered by ${field.name}`,
+      [field.name],
+      [field.type],
+      filePath
+    ));
+  }
+
+  return tools;
+}
+
+function databaseTool(
+  name: string,
+  description: string,
+  params: string[],
+  paramTypes: string[],
+  filePath: string
+): ExtractedTool {
+  return {
+    name,
+    source: 'database',
+    description,
+    params,
+    paramTypes,
+    returnType: 'unknown',
+    filePath,
+    permission: 'UNKNOWN',
+    isAsync: true,
+  };
+}
+
+function drizzleColumnType(text: string): string {
+  const lower = text.toLowerCase();
+  if (/boolean/.test(lower)) return 'boolean';
+  if (/date|timestamp/.test(lower)) return 'Date';
+  if (/json|jsonb/.test(lower)) return 'object';
+  if (/integer|serial|bigint|numeric|decimal|real|double|float/.test(lower)) return 'number';
+  return 'string';
+}
+
+function mongooseSchemaFields(node: Node): DbField[] {
+  if (Node.isNewExpression(node)) {
+    const expression = node.getExpression().getText();
+    if (expression !== 'Schema' && expression !== 'mongoose.Schema') return [];
+    const firstArg = node.getArguments()[0];
+    return firstArg && Node.isObjectLiteralExpression(firstArg)
+      ? mongooseObjectFields(firstArg)
+      : [];
+  }
+
+  if (Node.isCallExpression(node)) {
+    const expression = node.getExpression().getText();
+    if (expression !== 'Schema' && expression !== 'mongoose.Schema') return [];
+    const firstArg = node.getArguments()[0];
+    return firstArg && Node.isObjectLiteralExpression(firstArg)
+      ? mongooseObjectFields(firstArg)
+      : [];
+  }
+
+  return [];
+}
+
+function mongooseObjectFields(objectLiteral: ObjectLiteralExpression): DbField[] {
+  return objectLiteral.getProperties().flatMap(property => {
+    if (!Node.isPropertyAssignment(property)) return [];
+
+    const name = property.getName().replace(/^['"]|['"]$/g, '');
+    const initializer = property.getInitializer();
+    if (!initializer) return [];
+
+    return [{
+      name,
+      type: mongooseFieldType(initializer.getText()),
+    }];
+  });
+}
+
+function mongooseFieldType(text: string): string {
+  if (/\bBoolean\b|type:\s*Boolean/.test(text)) return 'boolean';
+  if (/\bNumber\b|type:\s*Number/.test(text)) return 'number';
+  if (/\bDate\b|type:\s*Date/.test(text)) return 'Date';
+  if (/\bObjectId\b|Types\.ObjectId|Schema\.Types\.ObjectId/.test(text)) return 'string';
+  if (/^\s*\[/.test(text)) return 'unknown[]';
+  if (/\bMixed\b|type:\s*Object/.test(text)) return 'object';
+  return 'string';
+}
+
+function dedupeTools(tools: ExtractedTool[]): ExtractedTool[] {
+  const seen = new Set<string>();
+  return tools.filter(tool => {
+    if (seen.has(tool.name)) return false;
+    seen.add(tool.name);
+    return true;
+  });
+}
+
+function singularPascal(name: string): string {
+  const normalized = name
+    .replace(/Schema$/, '')
+    .replace(/Model$/, '')
+    .replace(/Table$/, '');
+  const singular = normalized.endsWith('ies')
+    ? `${normalized.slice(0, -3)}y`
+    : normalized.endsWith('s') && normalized.length > 1
+      ? normalized.slice(0, -1)
+      : normalized;
+  return pascal(singular);
+}
+
+function pascal(name: string): string {
+  return name
+    .replace(/[_\-\s]+(.)/g, (_, char) => char.toUpperCase())
+    .replace(/^(.)/, char => char.toUpperCase());
 }

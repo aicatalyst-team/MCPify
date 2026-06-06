@@ -6,7 +6,13 @@ import path from 'path';
 import chalk from 'chalk';
 import ora, { type Ora } from 'ora';
 
-import { BackendAnalyzer, PrismaAnalyzer, SwaggerConverter } from '@mcpify/backend-analyzer';
+import {
+  BackendAnalyzer,
+  DrizzleAnalyzer,
+  MongooseAnalyzer,
+  PrismaAnalyzer,
+  SwaggerConverter,
+} from '@mcpify/backend-analyzer';
 import { FrontendAnalyzer }                                  from '@mcpify/frontend-analyzer';
 import { WorkflowEngine }                                    from '@mcpify/workflow-engine';
 import { PermissionLayer, permissionBadge }                  from '@mcpify/permissions';
@@ -22,6 +28,8 @@ export interface AnalyzeOptions {
   workflows?:  boolean;   // default true; --no-workflows sets false
   swagger?:    string;
   prisma?:     string;
+  drizzle?:    string;
+  mongoose?:   string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -67,6 +75,31 @@ export async function runAnalysis(rootPath: string, opts: AnalyzeOptions) {
       done(prismaSpinner, `${prismaTools.length} database operations generated`);
     } catch (err: any) {
       warn(prismaSpinner, `Prisma analysis failed: ${err.message}`);
+    }
+  }
+
+  // Database analyzers (optional)
+  if (opts.drizzle) {
+    const drizzleSpinner = step('Analyzing Drizzle schemas...');
+    try {
+      const drizzleAnalyzer = new DrizzleAnalyzer(path.resolve(opts.drizzle));
+      const drizzleTools    = await drizzleAnalyzer.extract();
+      allTools.push(...drizzleTools);
+      done(drizzleSpinner, `${drizzleTools.length} Drizzle database operations generated`);
+    } catch (err: any) {
+      warn(drizzleSpinner, `Drizzle analysis failed: ${err.message}`);
+    }
+  }
+
+  if (opts.mongoose) {
+    const mongooseSpinner = step('Analyzing Mongoose schemas...');
+    try {
+      const mongooseAnalyzer = new MongooseAnalyzer(path.resolve(opts.mongoose));
+      const mongooseTools    = await mongooseAnalyzer.extract();
+      allTools.push(...mongooseTools);
+      done(mongooseSpinner, `${mongooseTools.length} Mongoose database operations generated`);
+    } catch (err: any) {
+      warn(mongooseSpinner, `Mongoose analysis failed: ${err.message}`);
     }
   }
 

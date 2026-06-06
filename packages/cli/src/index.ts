@@ -24,6 +24,8 @@ program
   .option('--no-workflows',     'Skip workflow detection')
   .option('--swagger <file>',   'Also analyze an OpenAPI/Swagger spec file')
   .option('--prisma <file>',    'Also analyze a Prisma schema file')
+  .option('--drizzle <path>',    'Also analyze Drizzle table definitions')
+  .option('--mongoose <path>',   'Also analyze Mongoose schema/model files')
   .action(async (pathArg: string | undefined, opts) => {
     const { runAnalysis } = await import('./commands/analyze.js');
     await runAnalysis(pathArg ?? '.', opts);

@@ -38,6 +38,8 @@ export async function runInteractive() {
       { name: 'Backend TypeScript/JavaScript', value: 'backend',   checked: true },
       { name: 'Frontend React/JSX components', value: 'frontend',  checked: true },
       { name: 'Prisma schema',                 value: 'prisma',    checked: false },
+      { name: 'Drizzle schema files',           value: 'drizzle',   checked: false },
+      { name: 'Mongoose schema/model files',    value: 'mongoose',  checked: false },
       { name: 'OpenAPI/Swagger spec',          value: 'swagger',   checked: false },
     ],
   });
@@ -52,6 +54,22 @@ export async function runInteractive() {
     prismaFile = await input({
       message: 'Path to Prisma schema:',
       default: './prisma/schema.prisma',
+    });
+  }
+
+  let drizzlePath: string | undefined;
+  if (analyzers.includes('drizzle')) {
+    drizzlePath = await input({
+      message: 'Path to Drizzle schema file or directory:',
+      default: './src/db',
+    });
+  }
+
+  let mongoosePath: string | undefined;
+  if (analyzers.includes('mongoose')) {
+    mongoosePath = await input({
+      message: 'Path to Mongoose schema file or directory:',
+      default: './src/models',
     });
   }
 
@@ -99,6 +117,20 @@ export async function runInteractive() {
   }
 
   // ── Show discovered tools and let user deselect ───────────────────────────
+  if (drizzlePath) {
+    const { DrizzleAnalyzer } = await import('@mcpify/backend-analyzer');
+    const tools = await new DrizzleAnalyzer(path.resolve(drizzlePath)).extract().catch(() => []);
+    allTools.push(...tools);
+    console.log(chalk.green('  +') + chalk.dim(` ${tools.length} Drizzle database operations`));
+  }
+
+  if (mongoosePath) {
+    const { MongooseAnalyzer } = await import('@mcpify/backend-analyzer');
+    const tools = await new MongooseAnalyzer(path.resolve(mongoosePath)).extract().catch(() => []);
+    allTools.push(...tools);
+    console.log(chalk.green('  +') + chalk.dim(` ${tools.length} Mongoose database operations`));
+  }
+
   if (allTools.length === 0) {
     console.log(chalk.yellow('\n  No tools found. Check your project path.\n'));
     return;
