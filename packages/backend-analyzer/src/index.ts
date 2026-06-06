@@ -52,7 +52,7 @@ export class BackendAnalyzer {
   }
 
   private _addFilesManually(): void {
-    const patterns = ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'];
+    const patterns = ['**/*.ts', '**/*.js'];
     for (const pattern of patterns) {
       // glob sync via addSourceFilesFromTsConfig fallback
       this.project.addSourceFilesAtPaths(
@@ -78,6 +78,7 @@ export class BackendAnalyzer {
       p.includes('node_modules') ||
       p.includes('/dist/') ||
       p.includes('/.mcpify/') ||
+      /\.(tsx|jsx)$/.test(p) ||
       /\.(test|spec)\.(ts|tsx|js|jsx)$/.test(p) ||
       p.endsWith('.d.ts')
     );
