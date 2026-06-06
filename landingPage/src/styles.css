@@ -1,0 +1,212 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-electric: var(--electric);
+  --color-cyan-glow: var(--cyan-glow);
+  --color-purple-glow: var(--purple-glow);
+  --color-toon-lime: var(--toon-lime);
+  --color-toon-pink: var(--toon-pink);
+  --color-toon-purple: var(--toon-purple);
+  --color-toon-peach: var(--toon-peach);
+  --color-toon-sky: var(--toon-sky);
+  --font-sans: "Fredoka", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-display: "Fredoka", system-ui, sans-serif;
+  --font-toon: "Fredoka", system-ui, sans-serif;
+}
+
+/*
+  TOON aesthetic — colors lifted directly from the MCPify logo:
+  cream paper background, deep ink-navy outline, mint cloud,
+  marigold yellow, bubblegum pink, lavender purple, lime, orange peach.
+*/
+:root {
+  --radius: 1.1rem;
+
+  --background: oklch(0.965 0.025 90);            /* cream paper */
+  --foreground: oklch(0.14 0.03 285);             /* ink near-black */
+  --card: oklch(0.985 0.015 90);
+  --card-foreground: oklch(0.14 0.03 285);
+  --popover: oklch(0.985 0.015 90);
+  --popover-foreground: oklch(0.14 0.03 285);
+  --primary: oklch(0.72 0.16 305);
+  --primary-foreground: oklch(0.14 0.03 285);
+  --secondary: oklch(0.84 0.17 70);
+  --secondary-foreground: oklch(0.14 0.03 285);
+  --muted: oklch(0.93 0.03 90);
+  --muted-foreground: oklch(0.35 0.04 285);
+  --accent: oklch(0.74 0.17 5);
+  --accent-foreground: oklch(0.14 0.03 285);
+  --destructive: oklch(0.65 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.14 0.03 285);                 /* OUTLINE: ink near-black */
+  --input: oklch(0.985 0.015 90);
+  --ring: oklch(0.72 0.16 305);
+
+  --electric: oklch(0.88 0.21 130);
+  --cyan-glow: oklch(0.88 0.09 180);
+  --purple-glow: oklch(0.72 0.16 305);
+
+  --toon-lime: oklch(0.88 0.21 130);
+  --toon-pink: oklch(0.74 0.17 5);
+  --toon-purple: oklch(0.72 0.16 305);
+  --toon-peach: oklch(0.78 0.15 50);
+  --toon-yellow: oklch(0.84 0.17 70);
+  --toon-mint: oklch(0.88 0.09 180);
+  --toon-sky: oklch(0.88 0.09 180);
+
+  --gradient-text: linear-gradient(135deg, oklch(0.84 0.17 70) 0%, oklch(0.74 0.17 5) 28%, oklch(0.72 0.16 305) 55%, oklch(0.88 0.21 130) 80%, oklch(0.78 0.15 50) 100%);
+  --shadow-toon: 6px 6px 0 0 oklch(0.14 0.03 285);
+  --shadow-toon-sm: 3px 3px 0 0 oklch(0.14 0.03 285);
+  --shadow-toon-lg: 10px 10px 0 0 oklch(0.14 0.03 285);
+  --shadow-glow: 6px 6px 0 0 oklch(0.14 0.03 285);
+  --shadow-card: 6px 6px 0 0 oklch(0.14 0.03 285);
+
+  --outline-w: 3px;
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { color-scheme: light; scroll-behavior: smooth; }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-weight: 600;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(circle at 12% 18%, oklch(0.74 0.17 5 / 0.22), transparent 38%),
+      radial-gradient(circle at 88% 12%, oklch(0.88 0.21 130 / 0.22), transparent 38%),
+      radial-gradient(circle at 70% 85%, oklch(0.72 0.16 305 / 0.22), transparent 42%),
+      radial-gradient(circle at 20% 90%, oklch(0.88 0.09 180 / 0.25), transparent 40%);
+    background-attachment: fixed;
+  }
+  ::selection { background: oklch(0.88 0.21 130); color: oklch(0.18 0.04 285); }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--foreground);
+  }
+  h1 { line-height: 1; }
+  h2 { line-height: 1.05; }
+  h3 { line-height: 1.15; }
+
+  code, pre, kbd, samp { font-family: var(--font-mono); font-weight: 500; }
+}
+
+@utility grid-bg {
+  background-image:
+    linear-gradient(to right, oklch(0.12 0 0 / 0.07) 2px, transparent 2px),
+    linear-gradient(to bottom, oklch(0.12 0 0 / 0.07) 2px, transparent 2px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 40%, transparent 80%);
+}
+
+@utility glass {
+  background: oklch(0.99 0 0);
+  border: var(--outline-w) solid oklch(0.12 0 0);
+  box-shadow: var(--shadow-toon);
+  border-radius: var(--radius);
+  transition: transform 180ms cubic-bezier(.2,.8,.2,1), box-shadow 180ms cubic-bezier(.2,.8,.2,1);
+}
+.glass:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-toon-lg);
+}
+
+@utility gradient-text {
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* Outline via layered text-shadow so it sits AROUND the glyph
+     instead of cutting INTO the fill like -webkit-text-stroke does. */
+  filter:
+    drop-shadow( 1px  0 oklch(0.14 0.03 285))
+    drop-shadow(-1px  0 oklch(0.14 0.03 285))
+    drop-shadow( 0  1px oklch(0.14 0.03 285))
+    drop-shadow( 0 -1px oklch(0.14 0.03 285))
+    drop-shadow( 1px  1px oklch(0.14 0.03 285))
+    drop-shadow(-1px  1px oklch(0.14 0.03 285))
+    drop-shadow( 1px -1px oklch(0.14 0.03 285))
+    drop-shadow(-1px -1px oklch(0.14 0.03 285))
+    drop-shadow( 3px  3px 0 oklch(0.14 0.03 285));
+}
+
+@utility text-toon {
+  font-family: var(--font-toon);
+  font-weight: 400;
+  letter-spacing: 0.005em;
+}
+
+@utility shadow-glow {
+  box-shadow: var(--shadow-toon);
+}
+
+@utility toon-outline {
+  border: var(--outline-w) solid oklch(0.12 0 0);
+  box-shadow: var(--shadow-toon);
+  border-radius: var(--radius);
+}
+
+@utility btn-toon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  padding: 0.7rem 1.25rem;
+  border-radius: 999px;
+  border: var(--outline-w) solid oklch(0.12 0 0);
+  box-shadow: var(--shadow-toon);
+  transition: transform 140ms cubic-bezier(.2,.8,.2,1), box-shadow 140ms cubic-bezier(.2,.8,.2,1);
+}
+.btn-toon:hover { transform: translate(-2px, -2px); box-shadow: var(--shadow-toon-lg); }
+.btn-toon:active { transform: translate(2px, 2px); box-shadow: 0 0 0 0 oklch(0.12 0 0); }
+
+@keyframes pulse-glow {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+}
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-blink { animation: blink 1s steps(1) infinite; }
