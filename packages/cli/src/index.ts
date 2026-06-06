@@ -4,14 +4,17 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { Command } from 'commander';
-import chalk from 'chalk';
+import { banner, brand } from './ui.js';
+import { CLI_VERSION } from './version.js';
 
 const program = new Command();
 
 program
   .name('mcpify')
   .description('Compile software into AI-operable systems')
-  .version('1.0.0');
+  .version(CLI_VERSION, '-v, --version', 'Show the MCPify version')
+  .addHelpText('beforeAll', banner('AI Enablement Compiler', CLI_VERSION))
+  .addHelpText('afterAll', '\n' + brand.gray('  Docs: https://github.com/amarnath3003/MCPify') + '\n');
 
 // ── Default: full analysis ────────────────────────────────────────────────────
 program

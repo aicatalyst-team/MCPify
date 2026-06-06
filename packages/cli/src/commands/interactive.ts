@@ -5,6 +5,8 @@
 import path from 'path';
 import chalk from 'chalk';
 import { input, confirm, select, checkbox } from '@inquirer/prompts';
+import { banner } from '../ui.js';
+import { CLI_VERSION } from '../version.js';
 
 import { BackendAnalyzer }  from '@mcpify/backend-analyzer';
 import { FrontendAnalyzer } from '@mcpify/frontend-analyzer';
@@ -15,7 +17,7 @@ import { applyRuleBasedDescriptions } from '@mcpify/ai-enhancer';
 import type { ExtractedTool, ClassifiedTool, Workflow } from '@mcpify/schema-engine';
 
 export async function runInteractive() {
-  console.log('\n' + chalk.cyan('  ⚡  ') + chalk.bold.white('MCPify Interactive') + '\n');
+  console.log(banner('Interactive Setup', CLI_VERSION));
 
   // ── Project path ───────────────────────────────────────────────────────────
   const rootPath = await input({

@@ -3,8 +3,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import path from 'path';
-import chalk from 'chalk';
-import ora, { type Ora } from 'ora';
 
 import {
   BackendAnalyzer,
@@ -16,7 +14,7 @@ import {
 import { EventAnalyzer }                                     from '@mcpify/event-analyzer';
 import { FrontendAnalyzer }                                  from '@mcpify/frontend-analyzer';
 import { WorkflowEngine }                                    from '@mcpify/workflow-engine';
-import { PermissionLayer, permissionBadge }                  from '@mcpify/permissions';
+import { PermissionLayer }                                   from '@mcpify/permissions';
 import { MCPGenerator }                                      from '@mcpify/mcp-generator';
 import { AIEnhancer, applyRuleBasedDescriptions }            from '@mcpify/ai-enhancer';
 import type { ExtractedTool, ClassifiedTool, Workflow }      from '@mcpify/schema-engine';
@@ -28,6 +26,12 @@ import {
   type ClientId,
   type RegisterResult,
 } from '../register-clients.js';
+import {
+  banner, box, section, sym, brand,
+  step, stepDone as done, stepWarn as warn,
+  permColor, permBadge,
+} from '../ui.js';
+import { CLI_VERSION } from '../version.js';
 
 export interface AnalyzeOptions {
   aiEnhance?:  boolean;
@@ -50,7 +54,7 @@ export async function runAnalysis(rootPath: string, opts: AnalyzeOptions) {
   const absRoot = path.resolve(rootPath);
   const outDir  = path.resolve(opts.output);
 
-  printBanner();
+  console.log(banner('AI Enablement Compiler', CLI_VERSION));
 
   const allTools: ExtractedTool[] = [];
 
@@ -274,21 +278,12 @@ function parseClients(raw: string | undefined): ClientId[] {
   return valid.length > 0 ? valid : ALL_CLIENTS;
 }
 
-function printBanner() {
-  console.log('\n' + chalk.cyan('  ⚡  ') + chalk.bold.white('MCPify') + chalk.dim(' — AI Enablement Compiler') + '\n');
-}
-
-function step(text: string): Ora {
-  return ora({ text, prefixText: '  ' }).start();
-}
-
-function done(spinner: Ora, text: string) {
-  spinner.succeed(chalk.dim(text));
-}
-
-function warn(spinner: Ora, text: string) {
-  spinner.warn(chalk.yellow(text));
-}
+const CLIENT_LABELS: Record<string, string> = {
+  'codex':          'Codex',
+  'claude-code':    'Claude Code',
+  'claude-desktop': 'Claude Desktop',
+  'vscode':         'VS Code',
+};
 
 function printSummary(
   tools:        ClassifiedTool[],
@@ -301,59 +296,51 @@ function printSummary(
   const confirm = tools.filter(t => t.permission === 'REQUIRES_CONFIRMATION');
   const blocked = tools.filter(t => t.permission === 'BLOCKED');
 
-  console.log('\n' + chalk.green.bold('  ✓ MCPify complete!\n'));
+  // ── Result card ─────────────────────────────────────────────────────────────
+  console.log('\n' + box({
+    title: 'Compiled',
+    color: brand.green,
+    lines: [
+      `${brand.green(String(safe.length).padStart(3))} safe        ${brand.gray('agent may call autonomously')}`,
+      `${brand.yellow(String(confirm.length).padStart(3))} confirm     ${brand.gray('agent must ask the user first')}`,
+      `${brand.red(String(blocked.length).padStart(3))} blocked     ${brand.gray('never exposed to the agent')}`,
+      `${brand.cyan(String(workflows.length).padStart(3))} workflows   ${brand.gray('multi-step composed operations')}`,
+    ],
+  }));
 
-  console.log(chalk.dim('  Generated files:'));
+  // ── Generated files ───────────────────────────────────────────────────────────
+  console.log(section('Generated files'));
   for (const f of files) {
-    const rel = f.replace(outDir, '').replace(/^\//, '');
-    console.log(`    ${chalk.gray('→')} ${chalk.white(rel)}`);
+    const rel = path.relative(outDir, f).replace(/\\/g, '/');
+    console.log(`    ${sym.arrow} ${brand.gray(outDir.replace(/\\/g, '/') + '/')}${rel}`);
   }
 
-  console.log('\n' + chalk.white.bold('  Generated tools:'));
-  for (const t of [...tools, ...workflows]) {
-    const badge = permissionBadge(t.permission);
-    const color =
-      t.permission === 'SAFE'                  ? chalk.green :
-      t.permission === 'REQUIRES_CONFIRMATION' ? chalk.yellow :
-      t.permission === 'BLOCKED'               ? chalk.red    : chalk.gray;
-
-    const sig = t.params.length > 0
-      ? `${t.name}(${t.params.join(', ')})`
-      : `${t.name}()`;
-
-    console.log(`    ${color(badge)}  ${chalk.bold(sig)}`);
+  // ── Tool surface (capped to keep output scannable) ─────────────────────────────
+  const all = [...tools, ...workflows];
+  const SHOWN = 24;
+  console.log(section(`Tool surface (${all.length})`));
+  for (const t of all.slice(0, SHOWN)) {
+    const sig = t.params.length > 0 ? `${t.name}(${t.params.join(', ')})` : `${t.name}()`;
+    console.log(`    ${permBadge(t.permission)}  ${permColor(t.permission)(sig)}`);
+  }
+  if (all.length > SHOWN) {
+    console.log(`    ${brand.gray(`… and ${all.length - SHOWN} more — see ${path.join(outDir, 'AGENTS.md').replace(/\\/g, '/')}`)}`);
   }
 
+  // ── Client registration ─────────────────────────────────────────────────────
   if (registration.length > 0) {
-    const labels: Record<string, string> = {
-      'codex':          'Codex',
-      'claude-code':    'Claude Code',
-      'claude-desktop': 'Claude Desktop',
-      'vscode':         'VS Code',
-    };
-    console.log('\n' + chalk.white.bold('  Registered with AI clients:'));
+    console.log(section('Registered with AI clients'));
     for (const r of registration) {
-      const icon =
-        r.status === 'written' ? chalk.green('✓') :
-        r.status === 'skipped' ? chalk.yellow('○') :
-                                 chalk.red('✗');
-      const name = chalk.white((labels[r.client] ?? r.client).padEnd(16));
-      console.log(`    ${icon} ${name} ${chalk.dim(r.detail)}`);
-      console.log(`      ${chalk.dim(r.configPath)}`);
+      const icon = r.status === 'written' ? sym.ok : r.status === 'skipped' ? sym.skip : sym.err;
+      const name = (CLIENT_LABELS[r.client] ?? r.client).padEnd(15);
+      console.log(`    ${icon} ${brand.violet(name)} ${brand.gray(r.detail)}`);
+      console.log(`      ${brand.gray(r.configPath)}`);
     }
   }
 
-  console.log([
-    '',
-    `  ${chalk.green('✅')} ${safe.length} safe    ` +
-    `${chalk.yellow('⚠️ ')} ${confirm.length} confirm    ` +
-    `${chalk.red('🚫')} ${blocked.length} blocked    ` +
-    `${chalk.cyan('🔄')} ${workflows.length} workflows`,
-    '',
-    `  ${chalk.dim('Output:')} ${chalk.white(outDir)}`,
-    '',
-    `  ${chalk.dim('Final step:')} ${chalk.cyan('cd ' + outDir + ' && npm install')}`,
-    `  ${chalk.dim('Then:')} restart your AI client — the tools appear in the chat bar automatically.`,
-    '',
-  ].join('\n'));
+  // ── Next steps ─────────────────────────────────────────────────────────────
+  console.log(section('Next'));
+  console.log(`    ${sym.bullet} ${brand.cyan(`cd ${outDir} && npm install`)}  ${brand.gray('(one time)')}`);
+  console.log(`    ${sym.bullet} restart your AI client ${brand.gray('— the tools appear in the chat bar automatically')}`);
+  console.log('');
 }
