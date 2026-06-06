@@ -20,8 +20,11 @@
 ---
 
 <p align="center">
-  <video src="assets/recording.mp4" width="720" controls autoplay loop muted></video>
+  <img src="https://github.com/amarnath3003/MCPify/raw/main/assets/recording.gif" 
+       width="720" 
+       alt="Demo recording" />
 </p>
+
 
 ---
 
