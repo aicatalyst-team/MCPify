@@ -1,54 +1,69 @@
-// examples/ecommerce-saas/src/components/CartPage.tsx
-// MCPify will extract: checkoutCart, addItemToCart, applyDiscountCode
-
 import React, { useState } from 'react';
 
-interface CartItem {
-  id:       string;
-  name:     string;
-  price:    number;
+export interface CartItem {
+  id: string;
+  name: string;
+  price: number;
   quantity: number;
 }
 
 interface CartPageProps {
-  items:          CartItem[];
-  onCheckout:     () => void;
-  onRemoveItem:   (id: string) => void;
-  onApplyCoupon:  (code: string) => void;
+  items: CartItem[];
+  checkoutAction: () => void;
+  removeItemAction: (id: string) => void;
+  applyCouponAction: (code: string) => void;
 }
 
-export function CartPage({ items, onCheckout, onRemoveItem, onApplyCoupon }: CartPageProps) {
-  const [coupon, setCoupon] = useState('');
-  const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+export function CartPage({ items, checkoutAction, removeItemAction, applyCouponAction }: CartPageProps) {
+  const [coupon, setCoupon] = useState('HACKATHON10');
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
-    <div className="cart-page">
-      <h1>Your Cart</h1>
-      {items.map(item => (
-        <div key={item.id} className="cart-item">
-          <span>{item.name}</span>
-          <span>${item.price}</span>
-          {/* MCPify extracts: removeItemFromCart */}
-          <button onClick={() => onRemoveItem(item.id)}>Remove</button>
-        </div>
-      ))}
+    <section className="panel cart-page" aria-labelledby="cart-title">
+      <div className="panel-heading">
+        <p className="eyebrow">Frontend action extraction</p>
+        <h2 id="cart-title">Customer cart</h2>
+      </div>
+
+      <div className="cart-list">
+        {items.length === 0 ? (
+          <p className="muted">The cart is empty. Add a product from the catalog.</p>
+        ) : items.map(item => (
+          <div key={item.id} className="cart-item">
+            <div>
+              <strong>{item.name}</strong>
+              <span>{item.quantity} x ${item.price.toFixed(2)}</span>
+            </div>
+            {/* MCPify extracts: removeItemFromCart */}
+            <button className="button ghost" onClick={() => removeItemAction(item.id)}>
+              Remove item
+            </button>
+          </div>
+        ))}
+      </div>
 
       <div className="coupon-section">
         <input
+          name="couponCode"
           value={coupon}
-          onChange={e => setCoupon(e.target.value)}
+          onChange={event => setCoupon(event.target.value)}
           placeholder="Coupon code"
         />
         {/* MCPify extracts: applyDiscountCode */}
-        <button onClick={() => onApplyCoupon(coupon)}>Apply Coupon</button>
+        <button className="button secondary" onClick={() => applyCouponAction(coupon)}>
+          Apply coupon
+        </button>
       </div>
 
-      <div className="cart-total">Total: ${total.toFixed(2)}</div>
+      <div className="cart-total">
+        <span>Total</span>
+        <strong>${total.toFixed(2)}</strong>
+      </div>
 
       {/* MCPify extracts: checkoutCart */}
-      <button onClick={onCheckout} className="btn-primary">
+      <button onClick={checkoutAction} className="button primary">
         Checkout
       </button>
-    </div>
+    </section>
   );
 }

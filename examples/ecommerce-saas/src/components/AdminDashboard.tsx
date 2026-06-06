@@ -1,107 +1,119 @@
-// examples/ecommerce-saas/src/components/AdminDashboard.tsx
-// MCPify will extract: refundOrder, approveRequest, publishContent,
-//                      createSupportRequest, exportData, searchItems
-
 import React, { useState } from 'react';
 
 interface AdminDashboardProps {
-  onRefund:          (orderId: string) => void;
-  onApprove:         (requestId: string) => void;
-  onReject:          (requestId: string) => void;
-  onPublish:         () => void;
-  onExport:          () => void;
-  onSearch:          (query: string) => void;
-  onCreateTicket:    () => void;
-  onSendMessage:     (userId: string) => void;
-  onInviteUser:      () => void;
-  onDeleteRecord:    (id: string) => void;
+  refundAction: (orderId: string) => void;
+  approveAction: (requestId: string) => void;
+  rejectAction: (requestId: string) => void;
+  publishAction: () => void;
+  exportAction: () => void;
+  searchAction: (query: string) => void;
+  createTicketAction: () => void;
+  sendMessageAction: (userId: string) => void;
+  inviteUserAction: () => void;
+  deleteRecordAction: (id: string) => void;
+  refundWorkflowAction: (orderId: string) => void;
 }
 
 export function AdminDashboard({
-  onRefund, onApprove, onReject, onPublish,
-  onExport, onSearch, onCreateTicket, onSendMessage, onInviteUser, onDeleteRecord,
+  refundAction,
+  approveAction,
+  rejectAction,
+  publishAction,
+  exportAction,
+  searchAction,
+  createTicketAction,
+  sendMessageAction,
+  inviteUserAction,
+  deleteRecordAction,
+  refundWorkflowAction,
 }: AdminDashboardProps) {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('order_001');
   const [selectedOrder, setSelectedOrder] = useState('order_001');
 
   return (
-    <div className="admin-dashboard">
-      <header>
-        <h1>Admin Dashboard</h1>
+    <section className="panel admin-dashboard" aria-labelledby="admin-title">
+      <div className="panel-heading">
+        <p className="eyebrow">Backend, permissions, workflows</p>
+        <h2 id="admin-title">Operator console</h2>
+      </div>
 
+      <div className="admin-search">
         {/* MCPify extracts: searchItems */}
         <input
+          name="searchQuery"
           value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-          placeholder="Search orders, customers…"
+          onChange={event => setSearchQuery(event.target.value)}
+          placeholder="Search orders, customers..."
         />
-        <button onClick={() => onSearch(searchQuery)}>Search</button>
-      </header>
+        <button className="button secondary" onClick={() => searchAction(searchQuery)}>
+          Search
+        </button>
+      </div>
 
-      <section className="orders-panel">
-        <h2>Orders</h2>
+      <label className="field-label" htmlFor="selected-order">
+        Selected order
+      </label>
+      <select
+        id="selected-order"
+        name="selectedOrder"
+        value={selectedOrder}
+        onChange={event => setSelectedOrder(event.target.value)}
+      >
+        <option value="order_001">order_001</option>
+        <option value="order_002">order_002</option>
+      </select>
 
+      <div className="action-grid">
         {/* MCPify extracts: refundOrder */}
-        <button onClick={() => onRefund(selectedOrder)}>
-          Refund
+        <button className="button danger" onClick={() => refundAction(selectedOrder)}>
+          Refund order
         </button>
 
         {/* MCPify extracts: exportData */}
-        <button onClick={onExport}>
+        <button className="button ghost" onClick={exportAction}>
           Export CSV
         </button>
-      </section>
-
-      <section className="approval-panel">
-        <h2>Pending Approvals</h2>
 
         {/* MCPify extracts: approveRequest */}
-        <button onClick={() => onApprove('req_001')}>
-          Approve
+        <button className="button secondary" onClick={() => approveAction('req_001')}>
+          Approve request
         </button>
 
         {/* MCPify extracts: rejectRequest */}
-        <button onClick={() => onReject('req_001')}>
-          Reject
+        <button className="button ghost" onClick={() => rejectAction('req_001')}>
+          Reject request
         </button>
-      </section>
-
-      <section className="content-panel">
-        <h2>Content</h2>
 
         {/* MCPify extracts: publishContent */}
-        <button onClick={onPublish}>
-          Publish
+        <button className="button secondary" onClick={publishAction}>
+          Publish content
         </button>
-      </section>
-
-      <section className="support-panel">
-        <h2>Support</h2>
 
         {/* MCPify extracts: createSupportRequest */}
-        <button onClick={onCreateTicket}>
-          Submit Support Ticket
+        <button className="button secondary" onClick={createTicketAction}>
+          Submit support ticket
         </button>
 
         {/* MCPify extracts: sendMessage */}
-        <button onClick={() => onSendMessage('user_001')}>
-          Send Message
+        <button className="button secondary" onClick={() => sendMessageAction('user_001')}>
+          Send message
         </button>
-      </section>
-
-      <section className="team-panel">
-        <h2>Team</h2>
 
         {/* MCPify extracts: inviteUser */}
-        <button onClick={onInviteUser}>
-          Invite User
+        <button className="button ghost" onClick={inviteUserAction}>
+          Invite user
         </button>
 
         {/* MCPify extracts: deleteRecord */}
-        <button onClick={() => onDeleteRecord('record_001')}>
-          Delete
+        <button className="button danger ghost" onClick={() => deleteRecordAction('record_001')}>
+          Delete record
         </button>
-      </section>
-    </div>
+
+        {/* MCPify extracts: resolveRefundWorkflow */}
+        <button className="button primary" onClick={() => refundWorkflowAction(selectedOrder)}>
+          Run refund workflow
+        </button>
+      </div>
+    </section>
   );
 }

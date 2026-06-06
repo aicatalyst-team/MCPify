@@ -16,15 +16,39 @@ From the repository root:
 ```bash
 npm install
 npm run build
+cd examples/ecommerce-saas
+npm install
+npm run build
+cd ../..
 npm run mcpify -- analyze examples/ecommerce-saas --output examples/ecommerce-saas/.mcpify --prisma examples/ecommerce-saas/prisma/schema.prisma --swagger examples/ecommerce-saas/openapi.json
 cd examples/ecommerce-saas/.mcpify
 npm install
 npm run build
+cd ..
+npm run mcpify:smoke
 ```
+
+## Run the Ecommerce UI
+
+The UI is a compact control room for the same source surfaces MCPify analyzes:
+
+- customer cart and catalog actions for frontend extraction
+- operator actions for backend tools and permission gates
+- API, Prisma database, and workflow panels
+- activity log showing what each demo click did
+
+```bash
+cd examples/ecommerce-saas
+npm run dev
+```
+
+Open `http://127.0.0.1:5173`.
 
 Generated database tools use Prisma when `DATABASE_URL` is available or when `MCPIFY_DATABASE_MODE=prisma` is set. Without a configured Prisma database, they fall back to the built-in demo store so the MCP demo still works offline.
 
-Generated frontend tools return an automation plan by default. To execute them in a browser, install Playwright browser binaries for the generated package and set `MCPIFY_FRONTEND_BASE_URL` to the running ecommerce UI URL.
+Generated frontend tools return an automation plan by default. To execute them in a browser, install Playwright browser binaries for the generated package and set `MCPIFY_FRONTEND_BASE_URL=http://127.0.0.1:5173` while the ecommerce UI is running.
+
+`npm run mcpify:smoke` starts the generated MCP server through a real MCP client and verifies backend, API, database, frontend, permission, and workflow behavior.
 
 ## Codex Chat Demo Script
 
