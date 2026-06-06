@@ -15,7 +15,7 @@ import {
   Database,
   Network,
 } from "lucide-react";
-import mcpifyLogo from "@/assets/mcpify-logo.png.asset.json";
+import mcpifyLogo from "@/assets/logo.png";
 
 export const Route = createFileRoute("/docs")({
   head: () => ({
@@ -386,6 +386,12 @@ function DocsPage() {
     }
   }, [activeId, filteredDocs]);
 
+  useEffect(() => {
+    if (window.innerWidth < 1024) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [activeId]);
+
   const grouped = useMemo(() => {
     return groupOrder
       .map((group) => ({
@@ -448,16 +454,17 @@ function DocsPage() {
 
           <div className="glass rounded-3xl overflow-hidden border border-border/70">
             <div className="grid gap-px bg-border/60 lg:grid-cols-[280px_minmax(0,1fr)_250px]">
-              <aside className="bg-[oklch(0.22_0.015_60)] text-[oklch(0.95_0.01_80)] p-4 lg:min-h-[760px]">
-                <div className="relative mb-3">
-                  <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-muted-foreground" />
-                  <input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    className="w-full pl-8 pr-2 py-2 rounded-md bg-[oklch(0.16_0.015_60)] text-[oklch(0.95_0.01_80)] border border-border text-xs font-mono placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary"
-                    placeholder="Search commands, analyzers, safety..."
-                  />
-                </div>
+              <aside className="bg-muted/20">
+                <div className="p-4 max-h-[45vh] lg:max-h-[calc(100vh-8rem)] lg:sticky lg:top-28 overflow-y-auto">
+                  <div className="relative mb-3">
+                    <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-muted-foreground" />
+                    <input
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      className="w-full pl-8 pr-2 py-2 rounded-md bg-background text-foreground border border-border text-xs font-mono placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary"
+                      placeholder="Search commands, analyzers, safety..."
+                    />
+                  </div>
 
                 <div className="mb-4 px-2 text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
                   {filteredDocs.length} result{filteredDocs.length === 1 ? "" : "s"}
@@ -503,6 +510,7 @@ function DocsPage() {
                     <span className="text-foreground"> workflows</span>.
                   </div>
                 )}
+                </div>
               </aside>
 
               <motion.article
@@ -655,8 +663,8 @@ function DocsPage() {
                 </div>
               </motion.article>
 
-              <aside className="bg-[oklch(0.985_0.005_80)] p-5 border-l border-border/70">
-                <div className="sticky top-28 space-y-5">
+              <aside className="bg-muted/20">
+                <div className="p-5 lg:sticky lg:top-28 lg:max-h-[calc(100vh-8rem)] overflow-y-auto space-y-5">
                   <div className="rounded-2xl border border-border bg-background/70 p-4">
                     <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground mb-2">
                       Selected Entry
@@ -732,7 +740,7 @@ function DocsNav() {
         <div className="glass rounded-full px-5 py-2.5 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <img
-              src={mcpifyLogo.url}
+              src={mcpifyLogo}
               alt="MCPify"
               className="h-9 w-auto"
               style={{ filter: "drop-shadow(2px 2px 0 oklch(0.18 0.04 285))" }}

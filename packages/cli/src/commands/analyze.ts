@@ -134,10 +134,11 @@ export async function runAnalysis(rootPath: string, opts: AnalyzeOptions) {
 
   // ── Step 3: Workflow detection (optional) ─────────────────────────────────
   let detectedWorkflows: Workflow[] = [];
+  const normalizedTools = namespaceDuplicateTools(allTools);
   if (opts.workflows !== false) {
     const workflowSpinner = step('Detecting workflows…');
     try {
-      const engine = new WorkflowEngine(allTools);
+      const engine = new WorkflowEngine(normalizedTools);
       detectedWorkflows = await engine.extract();
       done(workflowSpinner, `${detectedWorkflows.length} workflows detected`);
     } catch (err: any) {
@@ -148,7 +149,7 @@ export async function runAnalysis(rootPath: string, opts: AnalyzeOptions) {
   // ── Step 4: Permission classification ────────────────────────────────────
   const permSpinner = step('Classifying permissions…');
   const permLayer   = new PermissionLayer();
-  const classified  = permLayer.classify([...allTools, ...detectedWorkflows]);
+  const classified  = permLayer.classify([...normalizedTools, ...detectedWorkflows]);
   const classifiedTools     = classified.filter(t => t.source !== 'workflow') as ClassifiedTool[];
   const classifiedWorkflows = classified.filter(t => t.source === 'workflow') as Workflow[];
   done(permSpinner, 'Permissions classified');
@@ -188,6 +189,51 @@ export async function runAnalysis(rootPath: string, opts: AnalyzeOptions) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────────────────────────────────────
+
+function namespaceDuplicateTools(tools: ExtractedTool[]): ExtractedTool[] {
+  const counts = new Map<string, number>();
+  for (const tool of tools) {
+    counts.set(tool.name, (counts.get(tool.name) ?? 0) + 1);
+  }
+
+  const used = new Set<string>();
+  return tools.map(tool => {
+    if ((counts.get(tool.name) ?? 0) === 1 && !used.has(tool.name)) {
+      used.add(tool.name);
+      return tool;
+    }
+
+    const preferredName = used.has(tool.name)
+      ? `${tool.source}${pascal(tool.name)}`
+      : tool.name;
+
+    let name = preferredName;
+    let index = 2;
+    while (used.has(name)) {
+      name = `${preferredName}${index}`;
+      index += 1;
+    }
+
+    used.add(name);
+    return name === tool.name
+      ? tool
+      : {
+          ...tool,
+          name,
+          jsdocTags: {
+            ...(tool.jsdocTags ?? {}),
+            originalName: tool.name,
+          },
+          description: tool.description
+            ? `${tool.description} (${tool.source} surface)`
+            : `${tool.source} surface for ${tool.name}`,
+        };
+  });
+}
+
+function pascal(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
 
 function printBanner() {
   console.log('\n' + chalk.cyan('  ⚡  ') + chalk.bold.white('MCPify') + chalk.dim(' — AI Enablement Compiler') + '\n');

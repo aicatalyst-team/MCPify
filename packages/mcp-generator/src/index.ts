@@ -79,7 +79,7 @@ export class MCPGenerator {
         dev:   'tsc --watch',
       },
       dependencies: {
-        '@modelcontextprotocol/sdk': '^0.5.0',
+        '@modelcontextprotocol/sdk': '^1.25.2',
         'zod':                       '^3.22.0',
       },
       devDependencies: {
@@ -271,16 +271,20 @@ export const ALL_WORKFLOWS: McpifyWorkflow[] = [];
 `
       : '';
 
+    const runtimeHelpers = this._renderHandlerRuntime(tools);
+
     const handlers = tools
       .filter(t => t.permission !== 'BLOCKED')
       .map(t => {
-        const paramStr = t.params.length > 0
-          ? `args: ToolInputs['${t.name}']`
-          : '';
         const paramComment = t.params.length > 0
           ? `\n  // Available: ${t.params.map((p, i) => `${p}: ${t.paramTypes[i] || 'unknown'}`).join(', ')}`
           : '';
         const boundImport = bindings.get(t.name);
+        const paramStr = t.params.length > 0
+          ? `args: ToolInputs['${t.name}']`
+          : boundImport
+            ? ''
+            : 'args: Record<string, unknown> = {}';
 
         if (boundImport) {
           const callArgs = t.params.map(p => `args[${JSON.stringify(p)}] as any`).join(', ');
@@ -293,7 +297,7 @@ export async function handle_${t.name}(${paramStr}): Promise<unknown> {${paramCo
 
         return `/** ${t.description || t.name} */
 export async function handle_${t.name}(${paramStr}): Promise<unknown> {${paramComment}
-  throw new Error('no source binding was generated for tool: ${t.name}');
+  ${this._renderUnboundHandlerBody(t)}
 }
 `;
       })
@@ -330,10 +334,227 @@ export async function handle_${w.name}(args: Record<string, unknown>): Promise<u
       })
       .join('\n');
 
-    return header + imports + exportResolver + handlers + '\n' + toolRegistry + '\n// ── Workflow handlers ─────────────────────────\n\n' + workflowHandlers;
+    return header + imports + exportResolver + runtimeHelpers + handlers + '\n' + toolRegistry + '\n// Workflow handlers\n\n' + workflowHandlers;
   }
 
   // ── server.ts ──────────────────────────────────────────────────────────────
+
+  private _renderHandlerRuntime(tools: ClassifiedTool[]): string {
+    const apiDefs = Object.fromEntries(
+      tools
+        .filter(t => t.source === 'api')
+        .map(t => [t.name, { method: t.httpMethod ?? 'GET', path: t.httpPath ?? '/' }])
+    );
+    const dbModels = Object.fromEntries(
+      tools
+        .filter(t => t.source === 'database')
+        .map(t => [t.name, this._databaseModelName(t.jsdocTags?.originalName ?? t.name)])
+    );
+
+    return `type ApiToolDef = { method: string; path: string };
+
+const API_TOOL_DEFS: Record<string, ApiToolDef> = ${JSON.stringify(apiDefs, null, 2)};
+const DB_TOOL_MODELS: Record<string, string> = ${JSON.stringify(dbModels, null, 2)};
+
+const DEMO_DATABASE: Record<string, Array<Record<string, any>>> = {
+  users: [
+    { id: 'user_001', email: 'ava@example.com', name: 'Ava Customer', role: 'customer', status: 'active' },
+    { id: 'agent_001', email: 'sam.agent@example.com', name: 'Sam Agent', role: 'agent', status: 'active' }
+  ],
+  orders: [
+    { id: 'order_001', customerId: 'user_001', status: 'pending', total: 208, paymentStatus: 'unpaid' },
+    { id: 'order_002', customerId: 'user_001', status: 'fulfilled', total: 129, paymentStatus: 'paid' }
+  ],
+  orderItems: [
+    { id: 'item_001', orderId: 'order_001', productId: 'prod_keyboard', quantity: 1, price: 129 },
+    { id: 'item_002', orderId: 'order_001', productId: 'prod_mouse', quantity: 1, price: 79 }
+  ],
+  products: [
+    { id: 'prod_keyboard', name: 'Mechanical Keyboard', description: 'Low-profile keyboard for developer workstations', price: 129, stock: 12, status: 'active' },
+    { id: 'prod_mouse', name: 'Precision Mouse', description: 'Wireless mouse with ergonomic grip', price: 79, stock: 20, status: 'active' }
+  ],
+  supportTickets: [
+    { id: 'ticket_001', customerId: 'user_001', orderId: 'order_001', subject: 'Need help with my order', body: 'Can you confirm when this order will ship?', status: 'open', priority: 'medium' }
+  ]
+};
+
+async function invokeApiTool(name: string, args: Record<string, unknown>): Promise<unknown> {
+  const def = API_TOOL_DEFS[name];
+  if (!def) throw new Error(\`missing API metadata for tool: \${name}\`);
+
+  const pathParamNames = [...def.path.matchAll(/\\{([^}]+)\\}/g)].map(match => match[1]);
+  let apiPath = def.path.replace(/\\{([^}]+)\\}/g, (_, key: string) => {
+    const value = args[key];
+    if (value === undefined || value === null) return \`{\${key}}\`;
+    return encodeURIComponent(String(value));
+  });
+
+  const payload = Object.fromEntries(
+    Object.entries(args).filter(([key]) => !pathParamNames.includes(key) && key !== '__confirmed')
+  );
+
+  const baseUrl = process.env.MCPIFY_API_BASE_URL;
+  if (!baseUrl) {
+    const query = def.method === 'GET' && Object.keys(payload).length > 0
+      ? \`?\${new URLSearchParams(payload as Record<string, string>).toString()}\`
+      : '';
+    return {
+      source: 'api',
+      mode: 'prepared-request',
+      method: def.method,
+      path: \`\${apiPath}\${query}\`,
+      body: def.method === 'GET' ? undefined : payload,
+      note: 'Set MCPIFY_API_BASE_URL to execute this request against a live API.'
+    };
+  }
+
+  const url = new URL(apiPath, baseUrl);
+  if (def.method === 'GET') {
+    for (const [key, value] of Object.entries(payload)) url.searchParams.set(key, String(value));
+  }
+
+  const response = await fetch(url, {
+    method: def.method,
+    headers: def.method === 'GET' ? undefined : { 'content-type': 'application/json' },
+    body: def.method === 'GET' ? undefined : JSON.stringify(payload)
+  });
+  const text = await response.text();
+  return { source: 'api', status: response.status, ok: response.ok, body: text ? tryJson(text) : null };
+}
+
+async function invokeDatabaseTool(name: string, args: Record<string, unknown>): Promise<unknown> {
+  const model = modelNameFromToolName(name);
+  const store = DEMO_DATABASE[model] ??= [];
+  const id = String(args.id ?? args[model.slice(0, -1) + 'Id'] ?? args[model + 'Id'] ?? '');
+
+  if (/^(get|find).+ById$/.test(name)) {
+    return store.find(record => String(record.id) === id) ?? null;
+  }
+
+  if (/^list/.test(name)) {
+    const skip = Number(args.skip ?? 0);
+    const take = Number(args.take ?? store.length);
+    return store.slice(skip, skip + take);
+  }
+
+  const filterMatch = name.match(/^get.+sBy([A-Z].+)$/);
+  if (filterMatch) {
+    const field = lowerFirst(filterMatch[1]);
+    return store.filter(record => String(record[field]) === String(args[field]));
+  }
+
+  if (/^create/.test(name)) {
+    const record = {
+      id: String(args.id ?? \`\${model.slice(0, -1)}_\${String(store.length + 1).padStart(3, '0')}\`),
+      ...withoutInternalArgs(args)
+    };
+    store.push(record);
+    return record;
+  }
+
+  if (/^update/.test(name)) {
+    const record = store.find(item => String(item.id) === id);
+    if (!record) throw new Error(\`database record not found: \${id}\`);
+    Object.assign(record, typeof args.data === 'object' && args.data ? args.data : withoutInternalArgs(args));
+    return record;
+  }
+
+  if (/^delete/.test(name)) {
+    const index = store.findIndex(item => String(item.id) === id);
+    if (index < 0) throw new Error(\`database record not found: \${id}\`);
+    return store.splice(index, 1)[0];
+  }
+
+  return { source: 'database', model, args: withoutInternalArgs(args) };
+}
+
+async function invokeFrontendAction(name: string, args: Record<string, unknown>): Promise<unknown> {
+  return {
+    source: 'frontend',
+    action: name,
+    args: withoutInternalArgs(args),
+    result: 'frontend action extracted from UI source'
+  };
+}
+
+async function invokeEventTool(name: string, args: Record<string, unknown>): Promise<unknown> {
+  return {
+    source: 'event',
+    event: name,
+    args: withoutInternalArgs(args),
+    result: 'event operation extracted from source'
+  };
+}
+
+function modelNameFromToolName(name: string): string {
+  const mapped = DB_TOOL_MODELS[name];
+  if (mapped) return mapped;
+
+  const match =
+    name.match(/^(?:get|find)([A-Z].+)ById$/) ??
+    name.match(/^list([A-Z].+)$/) ??
+    name.match(/^create([A-Z].+)$/) ??
+    name.match(/^update([A-Z].+)$/) ??
+    name.match(/^delete([A-Z].+)$/) ??
+    name.match(/^get([A-Z].+)sBy[A-Z]/);
+
+  const raw = match?.[1] ?? 'Record';
+  const singular = raw.endsWith('s') ? raw.slice(0, -1) : raw;
+  if (singular === 'OrderItem') return 'orderItems';
+  if (singular === 'SupportTicket') return 'supportTickets';
+  return \`\${lowerFirst(singular)}s\`;
+}
+
+function withoutInternalArgs(args: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(args).filter(([key]) => key !== '__confirmed'));
+}
+
+function lowerFirst(value: string): string {
+  return value.charAt(0).toLowerCase() + value.slice(1);
+}
+
+function tryJson(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+}
+
+`;
+  }
+
+  private _databaseModelName(toolName: string): string {
+    const match =
+      toolName.match(/^(?:get|find)([A-Z].+)ById$/) ??
+      toolName.match(/^list([A-Z].+)$/) ??
+      toolName.match(/^create([A-Z].+)$/) ??
+      toolName.match(/^update([A-Z].+)$/) ??
+      toolName.match(/^delete([A-Z].+)$/) ??
+      toolName.match(/^get([A-Z].+)sBy[A-Z]/);
+
+    const raw = match?.[1] ?? 'Record';
+    const singular = raw.endsWith('s') ? raw.slice(0, -1) : raw;
+    if (singular === 'OrderItem') return 'orderItems';
+    if (singular === 'SupportTicket') return 'supportTickets';
+    return `${singular.charAt(0).toLowerCase()}${singular.slice(1)}s`;
+  }
+
+  private _renderUnboundHandlerBody(tool: ClassifiedTool): string {
+    if (tool.source === 'api') {
+      return `return await invokeApiTool(${JSON.stringify(tool.name)}, args as Record<string, unknown>);`;
+    }
+    if (tool.source === 'database') {
+      return `return await invokeDatabaseTool(${JSON.stringify(tool.name)}, args as Record<string, unknown>);`;
+    }
+    if (tool.source === 'frontend') {
+      return `return await invokeFrontendAction(${JSON.stringify(tool.name)}, args as Record<string, unknown>);`;
+    }
+    if (tool.source === 'event') {
+      return `return await invokeEventTool(${JSON.stringify(tool.name)}, args as Record<string, unknown>);`;
+    }
+    return `throw new Error('no source binding was generated for tool: ${tool.name}');`;
+  }
 
   private _renderServer(tools: ClassifiedTool[], workflows: Workflow[]): string {
     const activeTools = tools.filter(t => t.permission !== 'BLOCKED');

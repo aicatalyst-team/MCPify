@@ -158,10 +158,16 @@ const EXACT_OVERRIDES: Record<string, PermissionLevel> = {
   checkoutCart:            'REQUIRES_CONFIRMATION',
   processPayment:          'REQUIRES_CONFIRMATION',
   refundOrder:             'REQUIRES_CONFIRMATION',
+  updateOrderStatus:       'REQUIRES_CONFIRMATION',
+  assignOrderToAgent:      'REQUIRES_CONFIRMATION',
 
   // Support — confirm
   createSupportRequest:    'REQUIRES_CONFIRMATION',
+  replyToTicket:           'REQUIRES_CONFIRMATION',
+  assignTicket:            'REQUIRES_CONFIRMATION',
+  resolveTicket:           'REQUIRES_CONFIRMATION',
   escalateIssue:           'REQUIRES_CONFIRMATION',
+  updateUserRole:          'REQUIRES_CONFIRMATION',
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -204,10 +210,12 @@ export class PermissionLayer {
   /** Classify a single tool */
   private _classifyOne(tool: ExtractedTool): PermissionLevel {
     const name     = tool.name;
-    const combined = `${name} ${tool.description}`.toLowerCase();
+    const lookupName = tool.jsdocTags?.originalName ?? name;
+    const combined = `${lookupName} ${name} ${tool.description}`.toLowerCase();
 
     // ── 1. Exact overrides (highest priority) ─────────────────────────────
     if (EXACT_OVERRIDES[name]) return EXACT_OVERRIDES[name];
+    if (EXACT_OVERRIDES[lookupName]) return EXACT_OVERRIDES[lookupName];
 
     // ── 2. Blocked patterns ───────────────────────────────────────────────
     if (BLOCKED_PATTERNS.some(p => p.test(combined))) return 'BLOCKED';
@@ -229,10 +237,10 @@ export class PermissionLayer {
     }
 
     // ── 6. Safe patterns ──────────────────────────────────────────────────
-    if (SAFE_PATTERNS.some(p => p.test(name))) return 'SAFE';
+    if (SAFE_PATTERNS.some(p => p.test(lookupName))) return 'SAFE';
 
     // ── 7. Database reads → safe ──────────────────────────────────────────
-    if (tool.source === 'database' && /^(get|list|find|count)/.test(name)) {
+    if (tool.source === 'database' && /^(get|list|find|count)/.test(lookupName)) {
       return 'SAFE';
     }
 

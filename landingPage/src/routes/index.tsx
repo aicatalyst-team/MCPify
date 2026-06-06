@@ -25,7 +25,7 @@ import { FrontendTransform } from "@/components/FrontendTransform";
 import { ToonText } from "@/components/ToonText";
 import { FeatureCarousel } from "@/components/FeatureCarousel";
 import { ArchitectureStack } from "@/components/ArchitectureStack";
-import mcpifyLogo from "@/assets/mcpify-logo.png.asset.json";
+import mcpifyLogo from "@/assets/logo.png";
 
 
 export const Route = createFileRoute("/")({
@@ -204,7 +204,7 @@ function Nav() {
 function Logo({ className = "h-9 w-auto" }: { className?: string }) {
   return (
     <img
-      src={mcpifyLogo.url}
+      src={mcpifyLogo}
       alt="MCPify"
       className={className}
       style={{ filter: "drop-shadow(2px 2px 0 oklch(0.18 0.04 285))" }}
@@ -379,7 +379,7 @@ function HeroDiagram() {
           style={{ borderColor: "oklch(0.14 0.03 285)", boxShadow: "var(--shadow-toon)" }}
         >
           <img
-            src={mcpifyLogo.url}
+            src={mcpifyLogo}
             alt="MCPify"
             className="h-10 w-auto"
             style={{ filter: "drop-shadow(2px 2px 0 oklch(0.14 0.03 285))" }}

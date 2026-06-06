@@ -1,0 +1,14 @@
+{
+  "name": "mcpify-demo-recorder",
+  "version": "1.0.0",
+  "description": "Records the MCPify demo animation as an animated GIF",
+  "scripts": {
+    "record": "node record.js",
+    "record:skip-download": "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true node record.js"
+  },
+  "dependencies": {
+    "gif-encoder-2": "^1.0.4",
+    "pngjs": "^7.0.0",
+    "puppeteer": "^24.15.0"
+  }
+}

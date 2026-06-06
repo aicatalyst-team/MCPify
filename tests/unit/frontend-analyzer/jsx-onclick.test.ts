@@ -41,6 +41,27 @@ export function CartPage() {
   assert.deepEqual(byName.get('saveChanges')?.paramTypes, ['string', 'number']);
 });
 
+test('ignores React state setters on change events', async () => {
+  const root = await makeProject({
+    'src/CartPage.tsx': `
+export function CartPage() {
+  return (
+    <section>
+      <input value={coupon} onChange={e => setCoupon(e.target.value)} />
+      <button onClick={() => applyCoupon(coupon)}>Apply Coupon</button>
+    </section>
+  );
+}
+`,
+  });
+
+  const tools = await new FrontendAnalyzer(root).extract();
+  const names = tools.map(tool => tool.name);
+
+  assert.ok(!names.includes('setCoupon'));
+  assert.ok(names.includes('applyDiscountCode'));
+});
+
 async function makeProject(files: Record<string, string>): Promise<string> {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'mcpify-react-'));
   tempDirs.push(root);

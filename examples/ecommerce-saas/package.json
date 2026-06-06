@@ -4,11 +4,11 @@
   "private": true,
   "description": "Example SaaS application that MCPify can analyze",
   "scripts": {
-    "mcpify":          "mcpify analyze . --output .mcpify --prisma prisma/schema.prisma",
-    "mcpify:enhance":  "mcpify analyze . --output .mcpify --prisma prisma/schema.prisma --ai-enhance",
-    "mcpify:audit":    "mcpify audit .",
-    "mcpify:watch":    "mcpify analyze . --output .mcpify --prisma prisma/schema.prisma --watch",
-    "mcpify:simulate": "mcpify simulate ."
+    "mcpify":          "node ../../packages/cli/dist/index.js analyze . --output .mcpify --prisma prisma/schema.prisma --swagger openapi.json",
+    "mcpify:enhance":  "node ../../packages/cli/dist/index.js analyze . --output .mcpify --prisma prisma/schema.prisma --swagger openapi.json --ai-enhance",
+    "mcpify:audit":    "node ../../packages/cli/dist/index.js audit .",
+    "mcpify:watch":    "node ../../packages/cli/dist/index.js analyze . --output .mcpify --prisma prisma/schema.prisma --swagger openapi.json --watch",
+    "mcpify:simulate": "node ../../packages/cli/dist/index.js simulate ."
   },
   "dependencies": {
     "react": "^18.0.0",

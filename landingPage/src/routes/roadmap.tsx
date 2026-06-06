@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Github, ArrowLeft } from "lucide-react";
-import mcpifyLogo from "@/assets/mcpify-logo.png.asset.json";
+import mcpifyLogo from "@/assets/logo.png";
 
 export const Route = createFileRoute("/roadmap")({
   head: () => ({
@@ -113,7 +113,7 @@ function RoadmapNav() {
         <div className="glass rounded-full px-5 py-2.5 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <img
-              src={mcpifyLogo.url}
+              src={mcpifyLogo}
               alt="MCPify"
               className="h-9 w-auto"
               style={{ filter: "drop-shadow(2px 2px 0 oklch(0.18 0.04 285))" }}

@@ -17,6 +17,21 @@
   <a href="#generated-output">Generated Output</a>
 </p>
 
+---
+
+<p align="center">
+  <video src="assets/recording.webm" width="720" controls autoplay loop muted></video>
+</p>
+
+<p align="center">
+  <em>MCPify analyzing an ecommerce app → generating MCP tools → agent calling them live.</em><br/>
+  <a href="demo/demo.html">▶ Open interactive demo</a>
+  &nbsp;·&nbsp;
+  <a href="demo/README.md">🎬 Generate video with AI</a>
+</p>
+
+---
+
 ## Overview
 
 MCPify is an AI enablement compiler for existing software systems. It scans the parts of an application that matter to agents:
@@ -35,7 +50,7 @@ From that analysis, MCPify generates a runnable MCP server plus the metadata an 
 Running the compiler creates an output directory, `./.mcpify` by default, containing:
 
 - `server.ts` - MCP server entry point
-- `handlers.ts` - generated handler stubs and bound handlers
+- `handlers.ts` - generated handler registry with source-bound backend handlers and demo-safe fallbacks for API, database, frontend, and event tools
 - `tools.ts` - tool metadata and JSON schema definitions
 - `workflows.ts` - inferred workflow definitions
 - `schemas.ts` - Zod-based input schemas
@@ -51,28 +66,24 @@ npm install
 npm run build
 ```
 
-Run the CLI against one of the included examples:
-
-```bash
-npm run mcpify -- analyze ./examples/express-api
-```
-
-Analyze a larger example with optional sources:
+Run the CLI against the flagship ecommerce example:
 
 ```bash
 npm run mcpify -- analyze ./examples/ecommerce-saas \
-  --prisma ./examples/ecommerce-saas/prisma/schema.prisma
+  --output ./examples/ecommerce-saas/.mcpify \
+  --prisma ./examples/ecommerce-saas/prisma/schema.prisma \
+  --swagger ./examples/ecommerce-saas/openapi.json
 ```
 
 After generation:
 
 ```bash
-cd .mcpify
+cd examples/ecommerce-saas/.mcpify
 npm install
 npm run build
 ```
 
-The generated `AGENTS.md` explains how to connect the compiled server to an MCP client.
+The generated `AGENTS.md` explains how to connect the compiled server to an MCP client. The ecommerce walkthrough lives in `examples/ecommerce-saas/DEMO.md`.
 
 ## CLI
 
@@ -198,7 +209,7 @@ Those classifications flow into the generated MCP server and the generated `AGEN
 
 The compiler output is meant to be inspected and extended, not treated as opaque codegen.
 
-`handlers.ts` is especially important: it contains the generated handler registry and any bound backend handlers, and it is the place where business logic can be completed or refined.
+`handlers.ts` is especially important: it contains the generated handler registry, source-bound backend handlers, prepared API calls, in-memory database demo handlers, frontend action responses, and workflow orchestration.
 
 The generated server:
 
@@ -236,8 +247,8 @@ mcpify/
 
 The repository includes example projects you can compile today:
 
+- `examples/ecommerce-saas` - flagship full-surface MVP demo
 - `examples/express-api`
-- `examples/ecommerce-saas`
 - `examples/internal-tool`
 - `examples/nestjs-app`
 - `examples/swagger-only`

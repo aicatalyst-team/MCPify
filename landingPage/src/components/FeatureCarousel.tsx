@@ -67,7 +67,7 @@ export function FeatureCarousel({ features }: { features: Feature[] }) {
               onClick={() => !isActive && go(i)}
             >
               <div
-                className={`relative h-full w-full overflow-hidden flex flex-col justify-between p-6 sm:p-7 ${
+                className={`relative h-full w-full overflow-hidden flex flex-col justify-center items-center text-center p-6 sm:p-8 ${
                   isActive ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"
                 }`}
                 style={{
@@ -80,26 +80,25 @@ export function FeatureCarousel({ features }: { features: Feature[] }) {
                   filter: isActive ? "none" : `brightness(${1 - abs * 0.12})`,
                   transition: "box-shadow 0.2s ease"
                 }}
-
               >
+                <span className="absolute top-6 right-6 text-[10px] font-mono font-bold tracking-widest uppercase" style={{ color: "oklch(0.14 0.03 285 / 0.6)" }}>
+                  {String(i + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+                </span>
 
+                {f.icon && (
+                  <div className="mb-5">
+                    <ToonIcon icon={f.icon} index={i} size="lg" />
+                  </div>
+                )}
 
-                <div className="relative flex items-center justify-between">
-                  {f.icon ? <ToonIcon icon={f.icon} index={i} size="md" /> : <span />}
-                  <span className="text-[10px] font-mono font-bold tracking-widest" style={{ color: "oklch(0.14 0.03 285 / 0.8)" }}>
-                    {String(i + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
-                  </span>
-                </div>
-
-                <div className="relative" style={{ color: "oklch(0.14 0.03 285)" }}>
-                  <h3 className="font-display font-bold text-2xl sm:text-3xl leading-tight tracking-tight">
+                <div style={{ color: "oklch(0.14 0.03 285)" }}>
+                  <h3 className="font-display font-bold text-2xl sm:text-3xl leading-tight tracking-tight mb-3">
                     {f.title}
                   </h3>
-                  <p className="mt-3 text-sm font-medium leading-relaxed line-clamp-4" style={{ color: "oklch(0.14 0.03 285 / 0.85)" }}>
+                  <p className="text-sm sm:text-base font-medium leading-relaxed" style={{ color: "oklch(0.14 0.03 285 / 0.85)" }}>
                     {f.desc}
                   </p>
                 </div>
-
               </div>
             </motion.div>
           );

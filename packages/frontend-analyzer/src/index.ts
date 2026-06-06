@@ -250,6 +250,16 @@ function buildFrontendTool(input: {
   const textIntent = input.elementText ? resolveIntent(input.elementText) : null;
   const handlerIntent = cleanedHandler ? resolveIntent(splitIdentifierWords(cleanedHandler)) : null;
 
+  if (
+    !textIntent &&
+    !handlerIntent &&
+    cleanedHandler &&
+    isStateSetterHandler(cleanedHandler) &&
+    ['change', 'input'].includes(input.eventName)
+  ) {
+    return null;
+  }
+
   const action = textIntent?.action
     ?? handlerIntent?.action
     ?? cleanedHandler
@@ -291,6 +301,10 @@ function jsxHandlerName(value: any, attrName: string): string | null {
     return firstCalledFunctionName(expr.body) ?? (attrName === 'onSubmit' ? 'submitForm' : null);
   }
   return null;
+}
+
+function isStateSetterHandler(name: string): boolean {
+  return /^set[A-Z0-9]/.test(name);
 }
 
 function memberExpressionName(expr: any): string | null {

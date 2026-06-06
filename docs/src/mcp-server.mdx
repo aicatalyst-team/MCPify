@@ -13,4 +13,4 @@ MCPify generates a standalone TypeScript MCP server project.
 - `<project>/permissions.ts`: permission metadata.
 - `agents.md`: generated guide for agent clients.
 
-Handlers bind to matching exports from analyzed source files when possible, so generated tools can call real app logic instead of demo-only stubs.
+Handlers bind to matching exports from analyzed source files when possible. For non-code surfaces such as OpenAPI, database schemas, frontend actions, and events, MCPify emits MVP-safe generated handlers that return prepared requests, demo data, or extracted-action responses instead of empty placeholders.

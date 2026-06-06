@@ -1,0 +1,81 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "MCPify Ecommerce SaaS API",
+    "version": "1.0.0",
+    "description": "Small API surface used by the MCPify flagship ecommerce demo."
+  },
+  "paths": {
+    "/api/orders/{orderId}": {
+      "get": {
+        "operationId": "apiGetOrder",
+        "summary": "Fetch an order through the public API",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Order response" }
+        }
+      }
+    },
+    "/api/orders/{orderId}/refund": {
+      "post": {
+        "operationId": "apiRefundOrder",
+        "summary": "Request an order refund through the API",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": { "type": "number" },
+                  "reason": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": { "description": "Refund accepted" }
+        }
+      }
+    },
+    "/api/support/tickets": {
+      "post": {
+        "operationId": "apiCreateSupportTicket",
+        "summary": "Create a support ticket through the API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "customerId": { "type": "string" },
+                  "subject": { "type": "string" },
+                  "body": { "type": "string" },
+                  "orderId": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Ticket created" }
+        }
+      }
+    }
+  }
+}
