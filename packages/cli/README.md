@@ -11,9 +11,9 @@ so the tools show up in the chat bar — no manual config.
 ## Install
 
 ```bash
-npm install -g @mcpify/cli
+npm install -g mcpify-cli
 # or run without installing
-npx @mcpify/cli analyze ./my-app
+npx mcpify-cli analyze ./my-app
 ```
 
 ## Quick start
