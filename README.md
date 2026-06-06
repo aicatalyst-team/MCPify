@@ -1,80 +1,111 @@
 <p align="center">
-  <img src="assets/logo.png" alt="MCPify logo" width="720" />
+  <img src="assets/logo.png" alt="MCPify" width="720" />
 </p>
 
-# MCPify
+<p align="center">
+  <strong>Compile software into AI-operable systems.</strong>
+</p>
 
-Compile software into AI-operable systems.
+<p align="center">
+  MCPify is an AI enablement compiler that analyzes existing applications and generates secure, agent-ready abstractions.
+</p>
 
-MCPify is an AI enablement compiler that transforms existing applications into secure, agent-operable systems. Instead of manually building MCP servers, AI interfaces, workflows, and integrations, MCPify analyzes backend code, frontend applications, APIs, databases, workflows, and permissions to generate structured AI-operable abstractions.
+<p align="center">
+  <a href="#installation">Installation</a> ·
+  <a href="#quick-start">Quick Start</a> ·
+  <a href="#features">Features</a> ·
+  <a href="#roadmap">Roadmap</a>
+</p>
 
-## Vision
+## Overview
 
-Software today is designed for humans. Buttons, APIs, forms, dashboards, and databases are built around human interaction. AI agents are becoming operational systems that can code, browse, plan, execute tasks, interact with tools, and operate software, but modern applications are not designed for AI-native interaction.
+MCPify is designed to turn real software into AI-native, permission-aware systems. Instead of manually writing MCP servers, tool schemas, workflow wrappers, and synchronization logic, MCPify analyzes your backend, frontend, APIs, database models, workflows, and permissions to generate structured AI-operable interfaces.
 
-MCPify reduces the friction by turning existing software into:
+Modern products are still designed around human interaction. MCPify bridges that gap by making applications easier for AI agents to understand and operate.
 
-- AI tools
-- AI workflows
-- AI actions
-- semantic interfaces
-- permission-aware operations
-- agent-compatible systems
+## Installation
 
-## Core Idea
+```bash
+npm install -g mcpify
+```
+
+If you prefer not to install globally, you can also run it on demand:
 
 ```bash
 npx mcpify
 ```
 
-MCPify scans:
+## Quick Start
 
-- frontend
-- backend
-- APIs
-- database models
-- workflows
-- events
-- permissions
+```bash
+npx mcpify
+```
 
-and generates:
+MCPify scans your project and generates AI-operable outputs from:
+
+- frontend code
+- backend code
+- APIs and OpenAPI specs
+- database models and schemas
+- workflows and events
+- permissions and safety boundaries
+
+It can then produce:
 
 - MCP servers
 - AI tools
 - semantic workflows
-- safety boundaries
-- action abstractions
-- AI-operable interfaces
+- safe actions
+- permission-aware interfaces
+- synchronized AI metadata
 
-## What Makes MCPify Different
+## Features
 
-Most MCP tools only expose backend functions. MCPify aims to understand applications, workflows, actions, intent, permissions, UI interactions, and system structure.
+### Application Understanding
 
-It is not just function wrapping.
-It is application understanding for AI systems.
+MCPify looks beyond raw functions and endpoints. It aims to interpret intent, workflow structure, UI interactions, and operational boundaries.
 
-## Problem Statement
+### Frontend Extraction
 
-Current AI integrations often suffer from:
+It can analyze React, Next.js, Vue, and Angular applications to identify buttons, forms, routes, state mutations, and user-facing actions.
 
-1. Manual MCP boilerplate for schemas, validation, wrappers, metadata, and handlers.
-2. Invisible frontends that AI agents cannot operate without browser automation hacks.
-3. Weak semantic structure that exposes raw endpoints instead of meaningful workflows.
-4. Security risks when permissions and safety boundaries are missing.
-5. Synchronization drift as code changes and generated tooling falls out of date.
+### Backend and API Analysis
 
-## Solution
+It scans TypeScript, JavaScript, services, controllers, SDKs, and OpenAPI definitions to generate structured tool and workflow abstractions.
 
-MCPify automatically:
+### Workflow Extraction
 
-- analyzes application structure
-- extracts semantic actions
-- generates AI tools
-- builds workflows
-- creates permission-aware interfaces
-- synchronizes changes continuously
+MCPify can infer multi-step flows such as login, checkout, ticket creation, and order management, then package them into reusable AI workflows.
 
-## High-Level Architecture
+### Database Awareness
+
+It supports schema-level analysis for tools built on Prisma, Drizzle, Mongoose, SQLAlchemy, and PostgreSQL.
+
+### Safety and Permissions
+
+Every generated action can be classified with permissions, approval requirements, and safety boundaries.
+
+### Synchronization
+
+Generated definitions stay aligned with source code as the application evolves.
+
+## Example
+
+```bash
+npx mcpify swagger.json
+```
+
+Example output:
+
+```txt
+refundOrder(orderId)
+  - schema
+  - validation
+  - permissions
+  - AI metadata
+```
+
+## Architecture
 
 ```txt
 Application
@@ -85,74 +116,17 @@ Semantic Understanding Layer
   ↓
 Workflow Extraction
   ↓
-Safety & Permission Layer
+Safety and Permission Layer
   ↓
 MCP Generation
   ↓
 AI-Operable System
 ```
 
-## System Components
-
-### Backend Analyzer
-
-Scans TypeScript, JavaScript, APIs, services, controllers, and SDKs to extract functions, types, actions, workflows, and dependencies.
-
-### Frontend Analyzer
-
-Scans React, Next.js, Vue, and Angular applications to extract buttons, forms, routes, state mutations, UI actions, and workflows.
-
-### Workflow Extraction Engine
-
-Identifies multi-step flows such as login, add product, checkout, and payment, then turns them into reusable AI workflows.
-
-### Database Analyzer
-
-Scans Prisma, Drizzle, Mongoose, SQLAlchemy, and PostgreSQL schemas to generate query tools, filtered access tools, and semantic data operations.
-
-### API to MCP Conversion
-
-Converts OpenAPI and Swagger definitions into AI-native tools, schemas, validations, and workflows.
-
-### Event System Integration
-
-Understands systems such as Kafka, RabbitMQ, webhooks, EventEmitter, and pub/sub so agents can react to events and subscriptions.
-
-### Permission and Safety Layer
-
-Applies permission levels, safety classifications, approval requirements, and access boundaries to every generated tool.
-
-### AI Metadata Enhancement
-
-Improves descriptions, naming, examples, parameter clarity, and workflow understanding.
-
-### AGENTS.md Generation
-
-Creates repository guidance for AI coding agents, onboarding, architecture, and operational workflows.
-
-### Self-Updating Synchronization
-
-Keeps generated schemas, workflows, permissions, and MCP definitions synchronized with source code changes.
-
-### AI Simulation and Validation
-
-Simulates prompt injection, invalid operations, workflow failures, permission bypass attempts, and unsafe operations.
-
-## Example Output
-
-```txt
-refundOrder(orderId)
-with:
-- schema
-- validation
-- permissions
-- AI metadata
-```
-
-## Suggested Tech Stack
+## Stack
 
 | Area | Technology |
-|---|---|
+| --- | --- |
 | CLI | commander.js |
 | AST Parsing | ts-morph |
 | Validation | zod |
@@ -163,7 +137,7 @@ with:
 | Knowledge Graph | Neo4j / graphlib |
 | AI Enhancement | OpenAI API |
 
-## Proposed Repository Structure
+## Repository Structure
 
 ```txt
 mcpify/
@@ -183,7 +157,7 @@ mcpify/
 
 ## Roadmap
 
-### Phase 1 - Hackathon MVP
+### Phase 1 - MVP
 
 - backend analysis
 - schema generation
@@ -213,6 +187,10 @@ mcpify/
 - analytics
 - AI operating layer
 
+## Why MCPify
+
+Traditional AI integrations require teams to manually expose APIs, build MCP servers, define tool schemas, add safety layers, and keep everything in sync. MCPify is intended to reduce that overhead by compiling application structure into AI-ready operations.
+
 ## Taglines
 
 - Compile software into AI-operable systems.
@@ -220,3 +198,7 @@ mcpify/
 - The AI interface layer for software.
 - Make any application usable by AI agents.
 - From software to AI-operable systems instantly.
+
+## License
+
+This project does not currently declare a license in the repository. Add one before publishing or distributing the package publicly.
