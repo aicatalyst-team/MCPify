@@ -20,7 +20,7 @@
 ---
 
 <p align="center">
-  <img src="https://github.com/amarnath3003/MCPify/raw/main/assets/recording.mp4" 
+  <img src="https://github.com/amarnath3003/MCPify/raw/main/assets/recgif.gif" 
        width="1080" 
        alt="Demo recording" />
 </p>
