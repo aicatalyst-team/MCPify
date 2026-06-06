@@ -21,7 +21,7 @@
 
 <p align="center">
   <img src="https://github.com/amarnath3003/MCPify/raw/main/assets/recording.gif" 
-       width="720" 
+       width="1080" 
        alt="Demo recording" />
 </p>
 
