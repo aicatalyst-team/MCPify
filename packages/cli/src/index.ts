@@ -27,6 +27,8 @@ program
   .option('--prisma <file>',    'Also analyze a Prisma schema file')
   .option('--drizzle <path>',    'Also analyze Drizzle table definitions')
   .option('--mongoose <path>',   'Also analyze Mongoose schema/model files')
+  .option('--no-install',        'Do not auto-register the server into AI clients')
+  .option('--clients <list>',    'Clients to register: codex,claude-code,claude-desktop,vscode (or "all")', 'all')
   .action(async (pathArg: string | undefined, opts) => {
     const { runAnalysis } = await import('./commands/analyze.js');
     await runAnalysis(pathArg ?? '.', opts);

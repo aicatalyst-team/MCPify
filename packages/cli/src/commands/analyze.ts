@@ -21,6 +21,14 @@ import { MCPGenerator }                                      from '@mcpify/mcp-g
 import { AIEnhancer, applyRuleBasedDescriptions }            from '@mcpify/ai-enhancer';
 import type { ExtractedTool, ClassifiedTool, Workflow }      from '@mcpify/schema-engine';
 
+import {
+  registerClients,
+  deriveServerName,
+  ALL_CLIENTS,
+  type ClientId,
+  type RegisterResult,
+} from '../register-clients.js';
+
 export interface AnalyzeOptions {
   aiEnhance?:  boolean;
   output:      string;
@@ -32,6 +40,8 @@ export interface AnalyzeOptions {
   prisma?:     string;
   drizzle?:    string;
   mongoose?:   string;
+  install?:    boolean;   // default true; --no-install sets false
+  clients?:    string;    // comma list: codex,claude-code,claude-desktop,vscode,all
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -176,8 +186,27 @@ export async function runAnalysis(rootPath: string, opts: AnalyzeOptions) {
   const output     = await generator.generate(finalTools, classifiedWorkflows);
   done(genSpinner, 'MCP server generated');
 
+  // ── Step 7: Auto-register the server into local AI clients ────────────────
+  let registration: RegisterResult[] = [];
+  if (opts.install !== false) {
+    const clients = parseClients(opts.clients);
+    const regSpinner = step('Registering MCP server with AI clients…');
+    try {
+      registration = await registerClients({
+        serverName:  deriveServerName(absRoot),
+        serverEntry: path.join(outDir, 'server.ts'),
+        projectRoot: absRoot,
+        clients,
+      });
+      const wrote = registration.filter(r => r.status === 'written').length;
+      done(regSpinner, `Registered with ${wrote} client${wrote === 1 ? '' : 's'}`);
+    } catch (err: any) {
+      warn(regSpinner, `Client registration failed: ${err.message}`);
+    }
+  }
+
   // ── Summary ───────────────────────────────────────────────────────────────
-  printSummary(finalTools, classifiedWorkflows, output.files, outDir);
+  printSummary(finalTools, classifiedWorkflows, output.files, outDir, registration);
 
   // ── Watch mode ────────────────────────────────────────────────────────────
   if (opts.watch) {
@@ -235,6 +264,16 @@ function pascal(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
+function parseClients(raw: string | undefined): ClientId[] {
+  if (!raw || raw.trim().toLowerCase() === 'all') return ALL_CLIENTS;
+  const requested = raw
+    .split(',')
+    .map(s => s.trim().toLowerCase())
+    .filter(Boolean);
+  const valid = requested.filter((c): c is ClientId => (ALL_CLIENTS as string[]).includes(c));
+  return valid.length > 0 ? valid : ALL_CLIENTS;
+}
+
 function printBanner() {
   console.log('\n' + chalk.cyan('  ⚡  ') + chalk.bold.white('MCPify') + chalk.dim(' — AI Enablement Compiler') + '\n');
 }
@@ -252,10 +291,11 @@ function warn(spinner: Ora, text: string) {
 }
 
 function printSummary(
-  tools:     ClassifiedTool[],
-  workflows: Workflow[],
-  files:     string[],
-  outDir:    string
+  tools:        ClassifiedTool[],
+  workflows:    Workflow[],
+  files:        string[],
+  outDir:       string,
+  registration: RegisterResult[] = []
 ) {
   const safe    = tools.filter(t => t.permission === 'SAFE');
   const confirm = tools.filter(t => t.permission === 'REQUIRES_CONFIRMATION');
@@ -284,6 +324,25 @@ function printSummary(
     console.log(`    ${color(badge)}  ${chalk.bold(sig)}`);
   }
 
+  if (registration.length > 0) {
+    const labels: Record<string, string> = {
+      'codex':          'Codex',
+      'claude-code':    'Claude Code',
+      'claude-desktop': 'Claude Desktop',
+      'vscode':         'VS Code',
+    };
+    console.log('\n' + chalk.white.bold('  Registered with AI clients:'));
+    for (const r of registration) {
+      const icon =
+        r.status === 'written' ? chalk.green('✓') :
+        r.status === 'skipped' ? chalk.yellow('○') :
+                                 chalk.red('✗');
+      const name = chalk.white((labels[r.client] ?? r.client).padEnd(16));
+      console.log(`    ${icon} ${name} ${chalk.dim(r.detail)}`);
+      console.log(`      ${chalk.dim(r.configPath)}`);
+    }
+  }
+
   console.log([
     '',
     `  ${chalk.green('✅')} ${safe.length} safe    ` +
@@ -293,8 +352,8 @@ function printSummary(
     '',
     `  ${chalk.dim('Output:')} ${chalk.white(outDir)}`,
     '',
-    `  ${chalk.dim('Next:')} ${chalk.cyan('cd ' + outDir + ' && npm install && npm run build')}`,
-    `  ${chalk.dim('Then:')} add the server to Claude Desktop (see AGENTS.md)`,
+    `  ${chalk.dim('Final step:')} ${chalk.cyan('cd ' + outDir + ' && npm install')}`,
+    `  ${chalk.dim('Then:')} restart your AI client — the tools appear in the chat bar automatically.`,
     '',
   ].join('\n'));
 }

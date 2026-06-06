@@ -89,11 +89,15 @@ export class MCPGenerator {
       scripts: {
         build: 'tsc',
         start: `node ${entry.replace(/^\.\//, '')}`,
+        // Run the MCP server straight from TypeScript — no build step needed.
+        // This is the command AI clients are auto-registered to invoke.
+        mcp:   'tsx server.ts',
         dev:   'tsc --watch',
       },
       dependencies,
       devDependencies: {
         typescript:    '^5.4.0',
+        tsx:           '^4.19.0',
         '@types/node': '^20.0.0',
       },
     };
@@ -980,6 +984,7 @@ main().catch(err => {
     const confirm = tools.filter(t => t.permission === 'REQUIRES_CONFIRMATION');
     const blocked = tools.filter(t => t.permission === 'BLOCKED');
     const serverEntry = path.join(this.outDir, this._distEntry('server.js', tools).replace(/^\.\//, ''));
+    const serverSource = path.join(this.outDir, 'server.ts');
 
     const renderTool = (t: ClassifiedTool) => {
       const sig = t.params.length > 0
@@ -1043,36 +1048,52 @@ ${workflows.length > 0 ? workflows.map(renderWorkflow).join('\n\n---\n\n') : '_N
 
 ## Connecting an AI Agent
 
-### Claude Desktop
+> **Auto-registered.** \`mcpify\` writes this server into your local AI clients
+> (Codex, Claude Code, Claude Desktop, VS Code) automatically. Just run
+> \`cd ${this.outDir} && npm install\` once, then restart your client — the tools
+> appear in the chat bar. Use \`mcpify --no-install\` to opt out, or
+> \`mcpify --clients codex,claude-code\` to choose targets.
 
-Add to \`~/Library/Application Support/Claude/claude_desktop_config.json\`:
+The sections below document the exact entries written, in case you want to
+register the server manually or in another client.
+
+### Codex — \`~/.codex/config.toml\`
+
+\`\`\`toml
+[mcp_servers.my-app]
+command = "npx"
+args = ["-y", "tsx", "${serverSource.replace(/\\/g, '\\\\')}"]
+\`\`\`
+
+### Claude Code — \`.mcp.json\` (project root) · Claude Desktop — \`claude_desktop_config.json\`
 
 \`\`\`json
 {
   "mcpServers": {
     "my-app": {
-      "command": "node",
-      "args": ["${serverEntry}"]
+      "command": "npx",
+      "args": ["-y", "tsx", "${serverSource.replace(/\\/g, '\\\\')}"]
     }
   }
 }
-
 \`\`\`
 
-### Cursor
-
-Add to \`.cursor/mcp.json\` in your project root:
+### VS Code — \`.vscode/mcp.json\`
 
 \`\`\`json
 {
-  "mcpServers": {
+  "servers": {
     "my-app": {
-      "command": "node",
-      "args": ["${serverEntry}"]
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "tsx", "${serverSource.replace(/\\/g, '\\\\')}"]
     }
   }
 }
 \`\`\`
+
+> Prefer the compiled build? Run \`npm run build\` and point \`command\`/\`args\`
+> at \`node\` + \`${serverEntry.replace(/\\/g, '\\\\')}\` instead.
 
 ### Example Interaction
 
