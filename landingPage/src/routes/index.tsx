@@ -442,25 +442,44 @@ function Problem() {
 function Compare({ title, items, tone }: { title: string; items: string[]; tone: "positive" | "negative" }) {
   const positive = tone === "positive";
   return (
-    <div className={`glass rounded-2xl p-7 ${positive ? "shadow-glow" : ""}`}>
-      <h3 className="font-display font-semibold text-xl mb-5 flex items-center gap-2">
+    <motion.div 
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ type: "spring", stiffness: 200, damping: 20 }}
+      whileHover={{ y: -5, scale: 1.01 }}
+      className={`glass rounded-2xl p-8 ${positive ? "" : ""}`}
+      style={{
+        boxShadow: positive ? "var(--shadow-toon-lg)" : "var(--shadow-toon)",
+        border: `var(--outline-w) solid var(--color-foreground)`,
+        backgroundColor: positive ? "oklch(0.98 0.01 90)" : "oklch(0.96 0.02 90)"
+      }}
+    >
+      <h3 className="font-display font-bold text-2xl mb-6 flex items-center gap-3">
         {positive ? (
-          <span className="w-2 h-2 rounded-full bg-primary shadow-glow" />
+          <span className="w-3 h-3 rounded-full bg-[oklch(0.88_0.21_130)] border-[2px] border-foreground shadow-glow" />
         ) : (
-          <span className="w-2 h-2 rounded-full bg-muted-foreground/40" />
+          <span className="w-3 h-3 rounded-full bg-[oklch(0.74_0.17_5)] border-[2px] border-foreground" />
         )}
         {title}
       </h3>
       <ul className="space-y-3">
-        {items.map((item) => (
-          <li key={item} className="flex gap-3 text-sm">
+        {items.map((item, i) => (
+          <motion.li 
+            key={item} 
+            initial={{ opacity: 0, x: -10 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.1, type: "spring", stiffness: 300 }}
+            className="flex gap-3.5 text-base font-medium items-start"
+          >
             {positive ? (
-              <Check className="w-4 h-4 mt-0.5 text-primary shrink-0" />
+              <Check className="w-5 h-5 mt-0.5 text-[oklch(0.88_0.21_130)] shrink-0 stroke-[3px]" />
             ) : (
-              <X className="w-4 h-4 mt-0.5 text-muted-foreground/60 shrink-0" />
+              <X className="w-5 h-5 mt-0.5 text-muted-foreground/60 shrink-0 stroke-[3px]" />
             )}
             <span className={positive ? "text-foreground" : "text-muted-foreground"}>{item}</span>
-          </li>
+          </motion.li>
         ))}
       </ul>
     </div>

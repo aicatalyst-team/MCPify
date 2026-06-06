@@ -1,4 +1,5 @@
 import { type CSSProperties } from "react";
+import { motion } from "framer-motion";
 
 // Palette pulled directly from the MCPify logo.
 const LETTER_COLORS = [
@@ -38,7 +39,16 @@ interface ToonTextProps {
 export function ToonText({ children, offset = 0, className }: ToonTextProps) {
   let colorIdx = 0;
   return (
-    <span className={className} style={{ whiteSpace: "pre-wrap" }}>
+    <motion.span 
+      className={className} 
+      style={{ whiteSpace: "pre-wrap", display: "inline-block" }}
+      initial="hidden"
+      animate="visible"
+      variants={{
+        visible: { transition: { staggerChildren: 0.04 } },
+        hidden: {},
+      }}
+    >
       {Array.from(children).map((ch, i) => {
         if (ch === " ") {
           return (
@@ -50,11 +60,29 @@ export function ToonText({ children, offset = 0, className }: ToonTextProps) {
         const color = LETTER_COLORS[(colorIdx + offset) % LETTER_COLORS.length];
         colorIdx += 1;
         return (
-          <span key={i} style={letterStyle(color)}>
+          <motion.span 
+            key={i} 
+            style={letterStyle(color)}
+            variants={{
+              hidden: { opacity: 0, y: 20, rotate: -10 },
+              visible: { 
+                opacity: 1, 
+                y: 0, 
+                rotate: 0,
+                transition: { type: "spring", stiffness: 400, damping: 10 } 
+              }
+            }}
+            whileHover={{ 
+              y: -8, 
+              rotate: i % 2 === 0 ? 5 : -5,
+              scale: 1.1,
+              transition: { type: "spring", stiffness: 400, damping: 10 }
+            }}
+          >
             {ch}
-          </span>
+          </motion.span>
         );
       })}
-    </span>
+    </motion.span>
   );
 }

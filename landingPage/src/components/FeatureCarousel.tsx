@@ -56,7 +56,9 @@ export function FeatureCarousel({ features }: { features: Feature[] }) {
                 rotateY,
                 zIndex,
               }}
-              transition={{ type: "spring", stiffness: 220, damping: 28 }}
+              whileHover={isActive ? { scale: 1.02, y: -4 } : { scale: scale * 1.05 }}
+              whileTap={isActive ? { scale: 0.98, y: 2 } : { scale: scale * 0.95 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
               style={{ transformStyle: "preserve-3d" }}
               drag={isActive ? "x" : false}
               dragConstraints={{ left: 0, right: 0 }}
@@ -70,12 +72,13 @@ export function FeatureCarousel({ features }: { features: Feature[] }) {
                 }`}
                 style={{
                   borderRadius: "2rem",
-                  border: "3px solid oklch(0.14 0.03 285)",
+                  border: "var(--outline-w) solid oklch(0.14 0.03 285)",
                   background: f.tint ?? "oklch(0.98 0.01 90)",
                   boxShadow: isActive
-                    ? "8px 8px 0 0 oklch(0.14 0.03 285)"
+                    ? "var(--shadow-toon-lg)"
                     : `${6 - abs}px ${6 - abs}px 0 0 oklch(0.14 0.03 285)`,
                   filter: isActive ? "none" : `brightness(${1 - abs * 0.12})`,
+                  transition: "box-shadow 0.2s ease"
                 }}
 
               >
@@ -83,16 +86,16 @@ export function FeatureCarousel({ features }: { features: Feature[] }) {
 
                 <div className="relative flex items-center justify-between">
                   {f.icon ? <ToonIcon icon={f.icon} index={i} size="md" /> : <span />}
-                  <span className="text-[10px] font-mono tracking-widest" style={{ color: "oklch(0.14 0.03 285 / 0.7)" }}>
+                  <span className="text-[10px] font-mono font-bold tracking-widest" style={{ color: "oklch(0.14 0.03 285 / 0.8)" }}>
                     {String(i + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
                   </span>
                 </div>
 
                 <div className="relative" style={{ color: "oklch(0.14 0.03 285)" }}>
-                  <h3 className="font-display font-bold text-xl sm:text-2xl leading-tight tracking-tight">
+                  <h3 className="font-display font-bold text-2xl sm:text-3xl leading-tight tracking-tight">
                     {f.title}
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed line-clamp-4" style={{ color: "oklch(0.14 0.03 285 / 0.78)" }}>
+                  <p className="mt-3 text-sm font-medium leading-relaxed line-clamp-4" style={{ color: "oklch(0.14 0.03 285 / 0.85)" }}>
                     {f.desc}
                   </p>
                 </div>
@@ -107,19 +110,19 @@ export function FeatureCarousel({ features }: { features: Feature[] }) {
         <button
           onClick={() => go(index - 1)}
           aria-label="Previous feature"
-          className="w-11 h-11 rounded-full glass border border-border/60 flex items-center justify-center hover:bg-primary/10 hover:border-primary/40 transition-all"
+          className="w-12 h-12 rounded-full glass flex items-center justify-center hover:bg-primary/10 transition-all active:scale-95"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="w-6 h-6" />
         </button>
 
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center px-4 py-2 glass rounded-full" style={{ boxShadow: "var(--shadow-toon-sm)" }}>
           {features.map((_, i) => (
             <button
               key={i}
               aria-label={`Go to feature ${i + 1}`}
               onClick={() => go(i)}
-              className={`h-1.5 rounded-full transition-all ${
-                i === index ? "w-8 bg-primary" : "w-1.5 bg-foreground/20 hover:bg-foreground/40"
+              className={`h-2.5 rounded-full transition-all ${
+                i === index ? "w-8 bg-foreground" : "w-2.5 bg-foreground/20 hover:bg-foreground/40"
               }`}
             />
           ))}
@@ -128,9 +131,9 @@ export function FeatureCarousel({ features }: { features: Feature[] }) {
         <button
           onClick={() => go(index + 1)}
           aria-label="Next feature"
-          className="w-11 h-11 rounded-full glass border border-border/60 flex items-center justify-center hover:bg-primary/10 hover:border-primary/40 transition-all"
+          className="w-12 h-12 rounded-full glass flex items-center justify-center hover:bg-primary/10 transition-all active:scale-95"
         >
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRight className="w-6 h-6" />
         </button>
       </div>
     </div>
