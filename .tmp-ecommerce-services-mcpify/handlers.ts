@@ -6,193 +6,202 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { ToolInputs } from './schemas.js';
-import { getOrderById as __mcpify_getOrderById_0 } from '../examples/ecommerce-saas/src/services/orders.js';
-import { getOrdersByStatus as __mcpify_getOrdersByStatus_1 } from '../examples/ecommerce-saas/src/services/orders.js';
-import { countOrdersByStatus as __mcpify_countOrdersByStatus_2 } from '../examples/ecommerce-saas/src/services/orders.js';
-import { searchOrders as __mcpify_searchOrders_3 } from '../examples/ecommerce-saas/src/services/orders.js';
-import { refundOrder as __mcpify_refundOrder_4 } from '../examples/ecommerce-saas/src/services/orders.js';
-import { cancelOrder as __mcpify_cancelOrder_5 } from '../examples/ecommerce-saas/src/services/orders.js';
-import { updateOrderStatus as __mcpify_updateOrderStatus_6 } from '../examples/ecommerce-saas/src/services/orders.js';
-import { assignOrderToAgent as __mcpify_assignOrderToAgent_7 } from '../examples/ecommerce-saas/src/services/orders.js';
-import { listTicketsByStatus as __mcpify_listTicketsByStatus_8 } from '../examples/ecommerce-saas/src/services/support.js';
-import { getTicketById as __mcpify_getTicketById_9 } from '../examples/ecommerce-saas/src/services/support.js';
-import { searchTickets as __mcpify_searchTickets_10 } from '../examples/ecommerce-saas/src/services/support.js';
-import { createSupportRequest as __mcpify_createSupportRequest_11 } from '../examples/ecommerce-saas/src/services/support.js';
-import { replyToTicket as __mcpify_replyToTicket_12 } from '../examples/ecommerce-saas/src/services/support.js';
-import { assignTicket as __mcpify_assignTicket_13 } from '../examples/ecommerce-saas/src/services/support.js';
-import { escalateTicket as __mcpify_escalateTicket_14 } from '../examples/ecommerce-saas/src/services/support.js';
-import { resolveTicket as __mcpify_resolveTicket_15 } from '../examples/ecommerce-saas/src/services/support.js';
-import { sendMessageToCustomer as __mcpify_sendMessageToCustomer_16 } from '../examples/ecommerce-saas/src/services/support.js';
-import { getUserByEmail as __mcpify_getUserByEmail_17 } from '../examples/ecommerce-saas/src/services/users.js';
-import { getUserById as __mcpify_getUserById_18 } from '../examples/ecommerce-saas/src/services/users.js';
-import { listUsers as __mcpify_listUsers_19 } from '../examples/ecommerce-saas/src/services/users.js';
-import { searchUsers as __mcpify_searchUsers_20 } from '../examples/ecommerce-saas/src/services/users.js';
-import { registerUser as __mcpify_registerUser_21 } from '../examples/ecommerce-saas/src/services/users.js';
-import { authenticateUser as __mcpify_authenticateUser_22 } from '../examples/ecommerce-saas/src/services/users.js';
-import { updateUserRole as __mcpify_updateUserRole_23 } from '../examples/ecommerce-saas/src/services/users.js';
-import { suspendUser as __mcpify_suspendUser_24 } from '../examples/ecommerce-saas/src/services/users.js';
-import { initiatePasswordReset as __mcpify_initiatePasswordReset_25 } from '../examples/ecommerce-saas/src/services/users.js';
-import { inviteTeamMember as __mcpify_inviteTeamMember_26 } from '../examples/ecommerce-saas/src/services/users.js';
+import * as __mcpify_getOrderById_0 from '../examples/ecommerce-saas/src/services/orders.js';
+import * as __mcpify_getOrdersByStatus_1 from '../examples/ecommerce-saas/src/services/orders.js';
+import * as __mcpify_countOrdersByStatus_2 from '../examples/ecommerce-saas/src/services/orders.js';
+import * as __mcpify_searchOrders_3 from '../examples/ecommerce-saas/src/services/orders.js';
+import * as __mcpify_refundOrder_4 from '../examples/ecommerce-saas/src/services/orders.js';
+import * as __mcpify_cancelOrder_5 from '../examples/ecommerce-saas/src/services/orders.js';
+import * as __mcpify_updateOrderStatus_6 from '../examples/ecommerce-saas/src/services/orders.js';
+import * as __mcpify_assignOrderToAgent_7 from '../examples/ecommerce-saas/src/services/orders.js';
+import * as __mcpify_listTicketsByStatus_8 from '../examples/ecommerce-saas/src/services/support.js';
+import * as __mcpify_getTicketById_9 from '../examples/ecommerce-saas/src/services/support.js';
+import * as __mcpify_searchTickets_10 from '../examples/ecommerce-saas/src/services/support.js';
+import * as __mcpify_createSupportRequest_11 from '../examples/ecommerce-saas/src/services/support.js';
+import * as __mcpify_replyToTicket_12 from '../examples/ecommerce-saas/src/services/support.js';
+import * as __mcpify_assignTicket_13 from '../examples/ecommerce-saas/src/services/support.js';
+import * as __mcpify_escalateTicket_14 from '../examples/ecommerce-saas/src/services/support.js';
+import * as __mcpify_resolveTicket_15 from '../examples/ecommerce-saas/src/services/support.js';
+import * as __mcpify_sendMessageToCustomer_16 from '../examples/ecommerce-saas/src/services/support.js';
+import * as __mcpify_getUserByEmail_17 from '../examples/ecommerce-saas/src/services/users.js';
+import * as __mcpify_getUserById_18 from '../examples/ecommerce-saas/src/services/users.js';
+import * as __mcpify_listUsers_19 from '../examples/ecommerce-saas/src/services/users.js';
+import * as __mcpify_searchUsers_20 from '../examples/ecommerce-saas/src/services/users.js';
+import * as __mcpify_registerUser_21 from '../examples/ecommerce-saas/src/services/users.js';
+import * as __mcpify_authenticateUser_22 from '../examples/ecommerce-saas/src/services/users.js';
+import * as __mcpify_updateUserRole_23 from '../examples/ecommerce-saas/src/services/users.js';
+import * as __mcpify_suspendUser_24 from '../examples/ecommerce-saas/src/services/users.js';
+import * as __mcpify_initiatePasswordReset_25 from '../examples/ecommerce-saas/src/services/users.js';
+import * as __mcpify_inviteTeamMember_26 from '../examples/ecommerce-saas/src/services/users.js';
+
+function resolveExport(moduleExports: unknown, exportName: string): (...args: any[]) => unknown {
+  const record = moduleExports as Record<string, any>;
+  const value = record[exportName] ?? record.default?.[exportName];
+  if (typeof value !== 'function') {
+    throw new Error(`source export is not callable: ${exportName}`);
+  }
+  return value;
+}
 
 /** Retrieves a single order by its ID. */
 export async function handle_getOrderById(args: ToolInputs['getOrderById']): Promise<unknown> {
   // Available: orderId: string
-  return await __mcpify_getOrderById_0(args["orderId"] as any);
+  return await resolveExport(__mcpify_getOrderById_0, "getOrderById")(args["orderId"] as any);
 }
 
 /** Lists all orders with an optional status filter and pagination. */
 export async function handle_getOrdersByStatus(args: ToolInputs['getOrdersByStatus']): Promise<unknown> {
   // Available: status: import("C:/Users/amarn/OneDrive/Desktop/kochi/MCPify/examples/ecommerce-saas/src/services/orders").OrderStatus, limit: number, offset: number
-  return await __mcpify_getOrdersByStatus_1(args["status"] as any, args["limit"] as any, args["offset"] as any);
+  return await resolveExport(__mcpify_getOrdersByStatus_1, "getOrdersByStatus")(args["status"] as any, args["limit"] as any, args["offset"] as any);
 }
 
 /** Returns the total count of orders grouped by status. */
 export async function handle_countOrdersByStatus(): Promise<unknown> {
-  return await __mcpify_countOrdersByStatus_2();
+  return await resolveExport(__mcpify_countOrdersByStatus_2, "countOrdersByStatus")();
 }
 
 /** Searches orders by customer email or name. */
 export async function handle_searchOrders(args: ToolInputs['searchOrders']): Promise<unknown> {
   // Available: query: string
-  return await __mcpify_searchOrders_3(args["query"] as any);
+  return await resolveExport(__mcpify_searchOrders_3, "searchOrders")(args["query"] as any);
 }
 
 /** Issues a full or partial refund for an order. */
 export async function handle_refundOrder(args: ToolInputs['refundOrder']): Promise<unknown> {
   // Available: orderId: string, amount: number | undefined
-  return await __mcpify_refundOrder_4(args["orderId"] as any, args["amount"] as any);
+  return await resolveExport(__mcpify_refundOrder_4, "refundOrder")(args["orderId"] as any, args["amount"] as any);
 }
 
 /** Cancels a pending or processing order. */
 export async function handle_cancelOrder(args: ToolInputs['cancelOrder']): Promise<unknown> {
   // Available: orderId: string, reason: string
-  return await __mcpify_cancelOrder_5(args["orderId"] as any, args["reason"] as any);
+  return await resolveExport(__mcpify_cancelOrder_5, "cancelOrder")(args["orderId"] as any, args["reason"] as any);
 }
 
 /** Updates the fulfillment status of an order. */
 export async function handle_updateOrderStatus(args: ToolInputs['updateOrderStatus']): Promise<unknown> {
   // Available: orderId: string, status: import("C:/Users/amarn/OneDrive/Desktop/kochi/MCPify/examples/ecommerce-saas/src/services/orders").OrderStatus
-  return await __mcpify_updateOrderStatus_6(args["orderId"] as any, args["status"] as any);
+  return await resolveExport(__mcpify_updateOrderStatus_6, "updateOrderStatus")(args["orderId"] as any, args["status"] as any);
 }
 
 /** Assigns an order to a fulfilment agent. */
 export async function handle_assignOrderToAgent(args: ToolInputs['assignOrderToAgent']): Promise<unknown> {
   // Available: orderId: string, agentId: string
-  return await __mcpify_assignOrderToAgent_7(args["orderId"] as any, args["agentId"] as any);
+  return await resolveExport(__mcpify_assignOrderToAgent_7, "assignOrderToAgent")(args["orderId"] as any, args["agentId"] as any);
 }
 
 /** List support tickets filtered by status. */
 export async function handle_listTicketsByStatus(args: ToolInputs['listTicketsByStatus']): Promise<unknown> {
   // Available: status: import("C:/Users/amarn/OneDrive/Desktop/kochi/MCPify/examples/ecommerce-saas/src/services/support").TicketStatus
-  return await __mcpify_listTicketsByStatus_8(args["status"] as any);
+  return await resolveExport(__mcpify_listTicketsByStatus_8, "listTicketsByStatus")(args["status"] as any);
 }
 
 /** Get a single support ticket by ID. */
 export async function handle_getTicketById(args: ToolInputs['getTicketById']): Promise<unknown> {
   // Available: ticketId: string
-  return await __mcpify_getTicketById_9(args["ticketId"] as any);
+  return await resolveExport(__mcpify_getTicketById_9, "getTicketById")(args["ticketId"] as any);
 }
 
 /** Search tickets by keyword in subject or body. */
 export async function handle_searchTickets(args: ToolInputs['searchTickets']): Promise<unknown> {
   // Available: query: string
-  return await __mcpify_searchTickets_10(args["query"] as any);
+  return await resolveExport(__mcpify_searchTickets_10, "searchTickets")(args["query"] as any);
 }
 
 /** Creates a new support ticket. */
 export async function handle_createSupportRequest(args: ToolInputs['createSupportRequest']): Promise<unknown> {
   // Available: customerId: string, subject: string, body: string, orderId: string | undefined
-  return await __mcpify_createSupportRequest_11(args["customerId"] as any, args["subject"] as any, args["body"] as any, args["orderId"] as any);
+  return await resolveExport(__mcpify_createSupportRequest_11, "createSupportRequest")(args["customerId"] as any, args["subject"] as any, args["body"] as any, args["orderId"] as any);
 }
 
 /** Sends a reply message to a support ticket. */
 export async function handle_replyToTicket(args: ToolInputs['replyToTicket']): Promise<unknown> {
   // Available: ticketId: string, message: string
-  return await __mcpify_replyToTicket_12(args["ticketId"] as any, args["message"] as any);
+  return await resolveExport(__mcpify_replyToTicket_12, "replyToTicket")(args["ticketId"] as any, args["message"] as any);
 }
 
 /** Assigns a ticket to a support agent. */
 export async function handle_assignTicket(args: ToolInputs['assignTicket']): Promise<unknown> {
   // Available: ticketId: string, agentId: string
-  return await __mcpify_assignTicket_13(args["ticketId"] as any, args["agentId"] as any);
+  return await resolveExport(__mcpify_assignTicket_13, "assignTicket")(args["ticketId"] as any, args["agentId"] as any);
 }
 
 /** Escalates a ticket to a higher-tier agent. */
 export async function handle_escalateTicket(args: ToolInputs['escalateTicket']): Promise<unknown> {
   // Available: ticketId: string, reason: string
-  return await __mcpify_escalateTicket_14(args["ticketId"] as any, args["reason"] as any);
+  return await resolveExport(__mcpify_escalateTicket_14, "escalateTicket")(args["ticketId"] as any, args["reason"] as any);
 }
 
 /** Marks a support ticket as resolved. */
 export async function handle_resolveTicket(args: ToolInputs['resolveTicket']): Promise<unknown> {
   // Available: ticketId: string, resolution: string
-  return await __mcpify_resolveTicket_15(args["ticketId"] as any, args["resolution"] as any);
+  return await resolveExport(__mcpify_resolveTicket_15, "resolveTicket")(args["ticketId"] as any, args["resolution"] as any);
 }
 
 /** Sends a direct message to a customer. */
 export async function handle_sendMessageToCustomer(args: ToolInputs['sendMessageToCustomer']): Promise<unknown> {
   // Available: customerId: string, message: string
-  return await __mcpify_sendMessageToCustomer_16(args["customerId"] as any, args["message"] as any);
+  return await resolveExport(__mcpify_sendMessageToCustomer_16, "sendMessageToCustomer")(args["customerId"] as any, args["message"] as any);
 }
 
 /** Find a user by their email address. */
 export async function handle_getUserByEmail(args: ToolInputs['getUserByEmail']): Promise<unknown> {
   // Available: email: string
-  return await __mcpify_getUserByEmail_17(args["email"] as any);
+  return await resolveExport(__mcpify_getUserByEmail_17, "getUserByEmail")(args["email"] as any);
 }
 
 /** Get a user by ID. */
 export async function handle_getUserById(args: ToolInputs['getUserById']): Promise<unknown> {
   // Available: userId: string
-  return await __mcpify_getUserById_18(args["userId"] as any);
+  return await resolveExport(__mcpify_getUserById_18, "getUserById")(args["userId"] as any);
 }
 
 /** List all users with optional role filter. */
 export async function handle_listUsers(args: ToolInputs['listUsers']): Promise<unknown> {
   // Available: role: "customer" | "admin" | "agent" | undefined
-  return await __mcpify_listUsers_19(args["role"] as any);
+  return await resolveExport(__mcpify_listUsers_19, "listUsers")(args["role"] as any);
 }
 
 /** Search users by name or email fragment. */
 export async function handle_searchUsers(args: ToolInputs['searchUsers']): Promise<unknown> {
   // Available: query: string
-  return await __mcpify_searchUsers_20(args["query"] as any);
+  return await resolveExport(__mcpify_searchUsers_20, "searchUsers")(args["query"] as any);
 }
 
 /** Registers a new user account. */
 export async function handle_registerUser(args: ToolInputs['registerUser']): Promise<unknown> {
   // Available: email: string, name: string, password: string
-  return await __mcpify_registerUser_21(args["email"] as any, args["name"] as any, args["password"] as any);
+  return await resolveExport(__mcpify_registerUser_21, "registerUser")(args["email"] as any, args["name"] as any, args["password"] as any);
 }
 
 /** Authenticates a user and returns a session token. */
 export async function handle_authenticateUser(args: ToolInputs['authenticateUser']): Promise<unknown> {
   // Available: email: string, password: string
-  return await __mcpify_authenticateUser_22(args["email"] as any, args["password"] as any);
+  return await resolveExport(__mcpify_authenticateUser_22, "authenticateUser")(args["email"] as any, args["password"] as any);
 }
 
 /** Updates a user's role (admin action). */
 export async function handle_updateUserRole(args: ToolInputs['updateUserRole']): Promise<unknown> {
   // Available: userId: string, newRole: "customer" | "admin" | "agent"
-  return await __mcpify_updateUserRole_23(args["userId"] as any, args["newRole"] as any);
+  return await resolveExport(__mcpify_updateUserRole_23, "updateUserRole")(args["userId"] as any, args["newRole"] as any);
 }
 
 /** Suspends a user account. */
 export async function handle_suspendUser(args: ToolInputs['suspendUser']): Promise<unknown> {
   // Available: userId: string, reason: string
-  return await __mcpify_suspendUser_24(args["userId"] as any, args["reason"] as any);
+  return await resolveExport(__mcpify_suspendUser_24, "suspendUser")(args["userId"] as any, args["reason"] as any);
 }
 
 /** Sends a password reset email. */
 export async function handle_initiatePasswordReset(args: ToolInputs['initiatePasswordReset']): Promise<unknown> {
   // Available: email: string
-  return await __mcpify_initiatePasswordReset_25(args["email"] as any);
+  return await resolveExport(__mcpify_initiatePasswordReset_25, "initiatePasswordReset")(args["email"] as any);
 }
 
 /** Invites a new team member by email. */
 export async function handle_inviteTeamMember(args: ToolInputs['inviteTeamMember']): Promise<unknown> {
   // Available: email: string, role: "customer" | "admin" | "agent"
-  return await __mcpify_inviteTeamMember_26(args["email"] as any, args["role"] as any);
+  return await resolveExport(__mcpify_inviteTeamMember_26, "inviteTeamMember")(args["email"] as any, args["role"] as any);
 }
 
 type GeneratedHandler = (args: Record<string, unknown>) => Promise<unknown>;
