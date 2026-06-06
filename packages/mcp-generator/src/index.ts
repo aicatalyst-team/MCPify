@@ -99,8 +99,8 @@ export class MCPGenerator {
     return JSON.stringify({
       compilerOptions: {
         target:          'ES2022',
-        module:          'NodeNext',
-        moduleResolution:'NodeNext',
+        module:          'ES2022',
+        moduleResolution:'Node',
         strict:          true,
         outDir:          'dist',
         rootDir,
