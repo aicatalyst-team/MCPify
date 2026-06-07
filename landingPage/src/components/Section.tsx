@@ -8,6 +8,7 @@ export function Section({
   description,
   children,
   className = "",
+  centered = false,
 }: {
   id?: string;
   eyebrow?: string;
@@ -15,6 +16,7 @@ export function Section({
   description?: ReactNode;
   children: ReactNode;
   className?: string;
+  centered?: boolean;
 }) {
   return (
     <section id={id} className={`relative py-28 px-6 ${className}`}>
@@ -25,7 +27,7 @@ export function Section({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6 }}
-            className="max-w-3xl mb-16"
+            className={`max-w-3xl mb-16 ${centered ? "mx-auto text-center" : ""}`}
           >
             {eyebrow && (
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass text-xs font-mono uppercase tracking-widest text-primary mb-5">

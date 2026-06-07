@@ -31,8 +31,8 @@ export function FeatureCarousel({ features }: { features: Feature[] }) {
   };
 
   return (
-    <div className="relative select-none">
-      <div className="relative h-[340px] flex items-center justify-center [perspective:1200px]">
+    <div className="relative select-none w-full mx-auto">
+      <div className="relative h-[340px] w-full flex items-center justify-center [perspective:1200px]">
         {features.map((f, i) => {
           const d = distance(i);
           const abs = Math.abs(d);
@@ -48,9 +48,9 @@ export function FeatureCarousel({ features }: { features: Feature[] }) {
           return (
             <motion.div
               key={i}
-              className="absolute top-0 left-1/2 w-[300px] sm:w-[360px] h-[320px] -translate-x-1/2"
+              className="absolute top-0 left-1/2 -ml-[150px] sm:-ml-[180px] w-[300px] sm:w-[360px] h-[320px]"
               animate={{
-                x: `calc(-50% + ${offsetX}px)`,
+                x: offsetX,
                 scale,
                 opacity,
                 rotateY,

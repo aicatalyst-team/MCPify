@@ -16,6 +16,7 @@ import {
   Network,
 } from "lucide-react";
 import mcpifyLogo from "@/assets/logo.png";
+import { Navbar } from "@/components/Navbar";
 
 export const Route = createFileRoute("/docs")({
   head: () => ({
@@ -415,8 +416,9 @@ function DocsPage() {
 
   return (
     <main className="relative min-h-screen overflow-x-clip">
-      <DocsNav />
-      <div className="pt-28 pb-20 px-6">
+      <div className="absolute inset-0 grid-bg pointer-events-none z-0" />
+      <Navbar />
+      <div className="relative z-10 pt-28 pb-20 px-6">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -424,13 +426,13 @@ function DocsPage() {
             transition={{ duration: 0.5 }}
             className="mb-8"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass text-xs font-mono uppercase tracking-widest text-primary mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[oklch(0.99_0_0)] border-[3px] border-foreground shadow-[2px_2px_0_0_#000] text-xs font-mono uppercase tracking-widest text-primary mb-4">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse-glow" />
               Current Repo Docs
             </div>
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] items-start">
               <div>
-                <h1 className="text-4xl md:text-5xl font-display font-semibold tracking-tight">
+                <h1 className="text-4xl md:text-5xl font-display font-semibold tracking-tight text-foreground">
                   <span className="gradient-text">Build with the code that exists.</span>
                 </h1>
                 <p className="mt-3 text-muted-foreground max-w-3xl leading-relaxed">
@@ -441,42 +443,41 @@ function DocsPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 {stats.map((stat) => (
-                  <div key={stat.label} className="glass rounded-2xl p-4">
-                    <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground">
+                  <div key={stat.label} className="bg-[oklch(0.99_0_0)] border-[3px] border-foreground shadow-[4px_4px_0_0_#000] rounded-2xl p-4">
+                    <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-primary">
                       {stat.label}
                     </div>
-                    <div className="mt-2 text-2xl font-display font-semibold">{stat.value}</div>
+                    <div className="mt-2 text-2xl font-display font-semibold text-foreground">{stat.value}</div>
                   </div>
                 ))}
               </div>
             </div>
           </motion.div>
 
-          <div className="glass rounded-3xl overflow-hidden border border-border/70">
-            <div className="grid gap-px bg-border/60 lg:grid-cols-[280px_minmax(0,1fr)_250px]">
-              <aside className="bg-muted/20">
-                <div className="p-4 max-h-[45vh] lg:max-h-[calc(100vh-8rem)] lg:sticky lg:top-28 overflow-y-auto">
-                  <div className="relative mb-3">
-                    <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-muted-foreground" />
-                    <input
-                      value={query}
-                      onChange={(e) => setQuery(e.target.value)}
-                      className="w-full pl-8 pr-2 py-2 rounded-md bg-background text-foreground border border-border text-xs font-mono placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary"
-                      placeholder="Search commands, analyzers, safety..."
-                    />
-                  </div>
+          <div className="bg-zinc-950 rounded-3xl overflow-hidden border-[3px] border-foreground shadow-toon mb-24">
+            <div className="grid gap-px bg-zinc-800/80 lg:grid-cols-[280px_minmax(0,1fr)_250px]">
+              <aside className="bg-zinc-900/60 p-4 max-h-[45vh] lg:max-h-[calc(100vh-8rem)] lg:sticky lg:top-28 overflow-y-auto custom-scroll">
+                <div className="relative mb-3">
+                  <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-zinc-500" />
+                  <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    className="w-full pl-8 pr-2 py-2 rounded-xl bg-zinc-900 text-zinc-200 border-[2px] border-foreground shadow-[2px_2px_0_0_#000] text-xs font-mono placeholder:text-zinc-600 focus:outline-none"
+                    placeholder="Search commands, analyzers, safety..."
+                  />
+                </div>
 
-                <div className="mb-4 px-2 text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+                <div className="mb-4 px-2 text-[11px] font-mono uppercase tracking-widest text-zinc-500">
                   {filteredDocs.length} result{filteredDocs.length === 1 ? "" : "s"}
                 </div>
 
                 {grouped.map((section) => (
                   <div key={section.group} className="mb-5">
                     <div className="flex items-center justify-between px-2 mb-2">
-                      <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+                      <div className="text-[10px] font-mono uppercase tracking-widest text-zinc-500">
                         {section.group}
                       </div>
-                      <div className="text-[10px] font-mono text-muted-foreground/70">
+                      <div className="text-[10px] font-mono text-zinc-600">
                         {section.items.length}
                       </div>
                     </div>
@@ -488,10 +489,10 @@ function DocsPage() {
                             key={item.id}
                             type="button"
                             onClick={() => setActiveId(item.id)}
-                            className={`w-full text-left rounded-xl px-3 py-2 transition-colors ${
+                            className={`w-full text-left rounded-xl px-3 py-2 mb-1 transition-all border-[2px] ${
                               isActive
-                                ? "bg-primary/15 text-foreground"
-                                : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+                                ? "bg-primary text-white font-medium border-foreground shadow-[2px_2px_0_0_#000]"
+                                : "border-transparent text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
                             }`}
                           >
                             <div className="text-sm font-medium">{item.title}</div>
@@ -510,7 +511,6 @@ function DocsPage() {
                     <span className="text-foreground"> workflows</span>.
                   </div>
                 )}
-                </div>
               </aside>
 
               <motion.article
@@ -518,21 +518,21 @@ function DocsPage() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="bg-background p-8 md:p-10"
+                className="bg-zinc-950 p-8 md:p-10"
               >
-                <div className="text-xs font-mono text-muted-foreground mb-2 uppercase tracking-widest">
+                <div className="text-xs font-mono text-zinc-500 mb-2 uppercase tracking-widest">
                   {active.group}
                 </div>
 
                 <div className="flex items-start gap-4 mb-6">
-                  <div className="rounded-2xl bg-primary/10 p-3 border border-primary/20">
+                  <div className="rounded-2xl bg-primary/20 p-3 border border-primary/30">
                     <active.icon className="w-7 h-7 text-primary" />
                   </div>
                   <div className="min-w-0">
-                    <h2 className="text-3xl md:text-4xl font-display font-semibold tracking-tight">
+                    <h2 className="text-3xl md:text-4xl font-display font-semibold tracking-tight text-white">
                       {active.title}
                     </h2>
-                    <p className="mt-3 text-muted-foreground leading-relaxed max-w-3xl">{active.summary}</p>
+                    <p className="mt-3 text-zinc-400 leading-relaxed max-w-3xl">{active.summary}</p>
                   </div>
                 </div>
 
@@ -540,7 +540,7 @@ function DocsPage() {
                   {active.highlights.map((highlight) => (
                     <span
                       key={highlight}
-                      className="inline-flex items-center rounded-full border border-border bg-muted/40 px-3 py-1 text-xs font-mono text-muted-foreground"
+                      className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900 px-3 py-1 text-xs font-mono text-zinc-300"
                     >
                       {highlight}
                     </span>
@@ -548,11 +548,11 @@ function DocsPage() {
                 </div>
 
                 {active.command && (
-                  <div className="mb-8 rounded-2xl border border-primary/20 bg-primary/5 p-5">
+                  <div className="mb-8 rounded-2xl border border-primary/30 bg-primary/10 p-5">
                     <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-primary mb-3">
                       Example Command
                     </div>
-                    <pre className="font-mono text-sm overflow-x-auto whitespace-pre-wrap">
+                    <pre className="font-mono text-sm overflow-x-auto whitespace-pre-wrap text-zinc-200">
                       {active.command}
                     </pre>
                   </div>
@@ -562,7 +562,7 @@ function DocsPage() {
                   {active.body.map((block, index) => {
                     if (block.kind === "p") {
                       return (
-                        <p key={index} className="text-muted-foreground leading-relaxed">
+                        <p key={index} className="text-zinc-400 leading-relaxed">
                           {block.text}
                         </p>
                       );
@@ -570,7 +570,7 @@ function DocsPage() {
 
                     if (block.kind === "h") {
                       return (
-                        <h3 key={index} className="pt-2 text-lg font-display font-semibold">
+                        <h3 key={index} className="pt-2 text-lg font-display font-semibold text-zinc-100">
                           {block.text}
                         </h3>
                       );
@@ -580,7 +580,7 @@ function DocsPage() {
                       return (
                         <pre
                           key={index}
-                          className="bg-[oklch(0.16_0.015_60)] text-[oklch(0.95_0.01_80)] border border-border rounded-2xl p-4 font-mono text-sm overflow-x-auto whitespace-pre-wrap"
+                          className="bg-black text-zinc-300 border border-zinc-800 rounded-2xl p-4 font-mono text-sm overflow-x-auto whitespace-pre-wrap"
                         >
                           {block.text}
                         </pre>
@@ -591,7 +591,7 @@ function DocsPage() {
                       return (
                         <ul key={index} className="space-y-2">
                           {block.items.map((item) => (
-                            <li key={item} className="flex gap-3 text-sm text-muted-foreground">
+                            <li key={item} className="flex gap-3 text-sm text-zinc-400">
                               <span className="mt-2 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
                               <span>{item}</span>
                             </li>
@@ -609,18 +609,18 @@ function DocsPage() {
                     <button
                       type="button"
                       onClick={() => setActiveId(previousDoc.id)}
-                      className="rounded-2xl border border-border p-4 text-left hover:bg-muted/30 transition-colors"
+                      className="rounded-2xl border-[2px] border-foreground bg-zinc-900 p-4 text-left hover:shadow-[4px_4px_0_0_#000] hover:-translate-y-0.5 transition-all"
                     >
-                      <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground mb-2">
+                      <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-500 mb-2">
                         Previous
                       </div>
-                      <div className="inline-flex items-center gap-2 font-medium">
+                      <div className="inline-flex items-center gap-2 font-medium text-zinc-200">
                         <ArrowLeft className="w-4 h-4" />
                         {previousDoc.title}
                       </div>
                     </button>
                   ) : (
-                    <div className="rounded-2xl border border-dashed border-border p-4 text-sm text-muted-foreground">
+                    <div className="rounded-2xl border border-dashed border-zinc-800 p-4 text-sm text-zinc-600">
                       Start here. This is the first docs entry.
                     </div>
                   )}
@@ -629,25 +629,25 @@ function DocsPage() {
                     <button
                       type="button"
                       onClick={() => setActiveId(nextDoc.id)}
-                      className="rounded-2xl border border-border p-4 text-left hover:bg-muted/30 transition-colors"
+                      className="rounded-2xl border-[2px] border-foreground bg-zinc-900 p-4 text-left hover:shadow-[4px_4px_0_0_#000] hover:-translate-y-0.5 transition-all"
                     >
-                      <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground mb-2">
+                      <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-500 mb-2">
                         Next
                       </div>
-                      <div className="inline-flex items-center gap-2 font-medium">
+                      <div className="inline-flex items-center gap-2 font-medium text-zinc-200">
                         {nextDoc.title}
                         <ArrowRight className="w-4 h-4" />
                       </div>
                     </button>
                   ) : (
-                    <div className="rounded-2xl border border-dashed border-border p-4 text-sm text-muted-foreground">
+                    <div className="rounded-2xl border border-dashed border-zinc-800 p-4 text-sm text-zinc-600">
                       You reached the last reference card.
                     </div>
                   )}
                 </div>
 
-                <div className="mt-10 pt-6 border-t border-border flex flex-wrap items-center justify-between gap-3">
-                  <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <div className="mt-10 pt-6 border-t border-zinc-800 flex flex-wrap items-center justify-between gap-3">
+                  <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-300 transition-colors">
                     <ArrowLeft className="w-3.5 h-3.5" />
                     Back to home
                   </Link>
@@ -663,23 +663,23 @@ function DocsPage() {
                 </div>
               </motion.article>
 
-              <aside className="bg-muted/20">
-                <div className="p-5 lg:sticky lg:top-28 lg:max-h-[calc(100vh-8rem)] overflow-y-auto space-y-5">
-                  <div className="rounded-2xl border border-border bg-background/70 p-4">
-                    <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground mb-2">
+              <aside className="bg-zinc-900/60">
+                <div className="p-5 lg:sticky lg:top-28 lg:max-h-[calc(100vh-8rem)] overflow-y-auto space-y-5 custom-scroll">
+                  <div className="rounded-2xl border-[2px] border-foreground bg-[oklch(0.72_0.16_305_/_0.15)] shadow-[4px_4px_0_0_#000] p-4">
+                    <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-primary mb-2">
                       Selected Entry
                     </div>
-                    <div className="text-lg font-display font-semibold">{active.title}</div>
-                    <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{active.summary}</p>
+                    <div className="text-lg font-display font-semibold text-white">{active.title}</div>
+                    <p className="mt-2 text-sm text-zinc-400 leading-relaxed">{active.summary}</p>
                   </div>
 
-                  <div className="rounded-2xl border border-border bg-background/70 p-4">
-                    <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground mb-3">
+                  <div className="rounded-2xl border-[2px] border-foreground bg-[oklch(0.74_0.17_5_/_0.15)] shadow-[4px_4px_0_0_#000] p-4">
+                    <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-accent mb-3">
                       Quick Facts
                     </div>
                     <ul className="space-y-2">
                       {active.highlights.map((highlight) => (
-                        <li key={highlight} className="flex gap-2 text-sm text-muted-foreground">
+                        <li key={highlight} className="flex gap-2 text-sm text-zinc-400">
                           <span className="mt-2 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
                           <span>{highlight}</span>
                         </li>
@@ -688,18 +688,18 @@ function DocsPage() {
                   </div>
 
                   {active.command && (
-                    <div className="rounded-2xl border border-border bg-background/70 p-4">
-                      <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground mb-3">
+                    <div className="rounded-2xl border-[2px] border-foreground bg-[oklch(0.84_0.17_70_/_0.15)] shadow-[4px_4px_0_0_#000] p-4">
+                      <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-secondary mb-3">
                         Run This
                       </div>
-                      <pre className="font-mono text-xs whitespace-pre-wrap break-words text-foreground/85">
+                      <pre className="font-mono text-xs whitespace-pre-wrap break-words text-zinc-200">
                         {active.command}
                       </pre>
                     </div>
                   )}
 
-                  <div className="rounded-2xl border border-border bg-background/70 p-4">
-                    <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground mb-3">
+                  <div className="rounded-2xl border-[2px] border-foreground bg-zinc-900 shadow-[4px_4px_0_0_#000] p-4">
+                    <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-500 mb-3">
                       Links
                     </div>
                     <div className="space-y-2 text-sm">
@@ -707,7 +707,7 @@ function DocsPage() {
                         href={repoUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+                        className="inline-flex items-center gap-2 text-zinc-400 hover:text-zinc-200 transition-colors"
                       >
                         <Github className="w-4 h-4" />
                         View repository
@@ -716,7 +716,7 @@ function DocsPage() {
                         href={readmeUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+                        className="inline-flex items-center gap-2 text-zinc-400 hover:text-zinc-200 transition-colors"
                       >
                         <Book className="w-4 h-4" />
                         Read README
@@ -730,56 +730,5 @@ function DocsPage() {
         </div>
       </div>
     </main>
-  );
-}
-
-function DocsNav() {
-  return (
-    <header className="fixed top-0 inset-x-0 z-50">
-      <div className="max-w-7xl mx-auto px-6 py-4">
-        <div className="glass rounded-full px-5 py-2.5 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <img
-              src={mcpifyLogo}
-              alt="MCPify"
-              className="h-9 w-auto"
-              style={{ filter: "drop-shadow(2px 2px 0 oklch(0.18 0.04 285))" }}
-            />
-          </Link>
-          <nav className="hidden md:flex items-center gap-7 text-sm text-muted-foreground">
-            <Link to="/" hash="how" className="hover:text-foreground transition-colors">
-              How it works
-            </Link>
-            <Link to="/" hash="features" className="hover:text-foreground transition-colors">
-              Features
-            </Link>
-            <Link to="/docs" className="text-foreground transition-colors">
-              Docs
-            </Link>
-            <Link to="/roadmap" className="hover:text-foreground transition-colors">
-              Roadmap
-            </Link>
-          </nav>
-          <div className="flex items-center gap-2">
-            <a
-              href={repoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden sm:inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-full transition-colors"
-            >
-              <Github className="w-4 h-4" />
-              <span className="font-mono">GitHub</span>
-            </a>
-            <Link
-              to="/"
-              hash="cta"
-              className="inline-flex items-center gap-1.5 text-sm px-4 py-1.5 rounded-full bg-foreground text-background hover:opacity-90 transition-opacity font-medium"
-            >
-              Get Started
-            </Link>
-          </div>
-        </div>
-      </div>
-    </header>
   );
 }

@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
+import { useState, useRef } from "react";
+import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import {
   ArrowRight,
   Github,
@@ -16,6 +17,7 @@ import {
   Sparkles,
   Check,
   X,
+  Copy,
 } from "lucide-react";
 import { TerminalAnimation } from "@/components/TerminalAnimation";
 import { Section } from "@/components/Section";
@@ -26,6 +28,9 @@ import { ToonText } from "@/components/ToonText";
 import { FeatureCarousel } from "@/components/FeatureCarousel";
 import { ArchitectureStack } from "@/components/ArchitectureStack";
 import mcpifyLogo from "@/assets/logo.png";
+
+
+import { Navbar } from "@/components/Navbar";
 
 
 export const Route = createFileRoute("/")({
@@ -86,7 +91,7 @@ const useCases = [
 function Index() {
   return (
     <main className="relative min-h-screen overflow-x-clip">
-      <Nav />
+      <Navbar />
       <Hero />
       <Problem />
       <Section
@@ -94,6 +99,7 @@ function Index() {
         eyebrow="How it works"
         title="From source code to AI-operable surface."
         description="A compiler pipeline that understands your software the way an agent needs to. Static analysis, semantic mapping, safety, and MCP generation — in one pass."
+        centered
       >
         <Pipeline />
       </Section>
@@ -103,9 +109,11 @@ function Index() {
         eyebrow="Features"
         title="A complete enablement toolchain."
         description="Every layer of your stack, made addressable. Type-safe, permissioned, and continuously synced with your codebase."
+        centered
       >
-        <FeatureCarousel features={features} />
-
+        <div className="flex justify-center w-full">
+          <FeatureCarousel features={features} />
+        </div>
       </Section>
 
       <Section
@@ -113,36 +121,9 @@ function Index() {
         eyebrow="Frontend → MCP"
         title="UIs become agent actions."
         description="MCPify reads your components and produces high-fidelity action descriptors. Agents can operate your app like a human would — click, type, navigate, complete flows."
+        centered
       >
         <FrontendTransform />
-      </Section>
-
-      <Section
-        id="terminal"
-        eyebrow="Live Demo"
-        title="One command. Full AI surface."
-        description="Point MCPify at your repo. Watch your application get compiled into a typed, safe, callable system in under a minute."
-      >
-        <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-10 items-center">
-          <TerminalAnimation />
-          <div>
-            <ul className="space-y-4 text-sm">
-              {[
-                "Zero-config detection of frameworks, routes, and data layers.",
-                "Generated MCP server, fully typed and permissioned.",
-                "Drop into Claude, GPT, or any MCP-compatible agent runtime.",
-                "Re-runs on every push. Always in sync with your codebase.",
-              ].map((t) => (
-                <li key={t} className="flex gap-3">
-                  <span className="mt-1 w-5 h-5 rounded-full bg-primary/15 border border-primary/40 flex items-center justify-center shrink-0">
-                    <Check className="w-3 h-3 text-primary" />
-                  </span>
-                  <span className="text-muted-foreground leading-relaxed">{t}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
       </Section>
 
 
@@ -154,50 +135,16 @@ function Index() {
         id="usecases"
         eyebrow="Use Cases"
         title="Built for builders shipping AI."
+        centered
       >
-        <FeatureCarousel features={useCases} />
+        <div className="flex justify-center w-full">
+          <FeatureCarousel features={useCases} />
+        </div>
       </Section>
 
       <FinalCTA />
       <Footer />
     </main>
-  );
-}
-
-function Nav() {
-  return (
-    <header className="fixed top-0 inset-x-0 z-50">
-      <div className="max-w-7xl mx-auto px-6 py-4">
-        <div className="glass rounded-full px-5 py-2.5 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <Logo />
-          </Link>
-          <nav className="hidden md:flex items-center gap-7 text-sm text-muted-foreground">
-            <a href="#how" className="hover:text-foreground transition-colors">How it works</a>
-            <a href="#features" className="hover:text-foreground transition-colors">Features</a>
-            <Link to="/docs" className="hover:text-foreground transition-colors">Docs</Link>
-            <Link to="/roadmap" className="hover:text-foreground transition-colors">Roadmap</Link>
-          </nav>
-          <div className="flex items-center gap-2">
-            <a
-              href="https://github.com/amarnath3003/MCPify"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden sm:inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-full transition-colors"
-            >
-              <Github className="w-4 h-4" />
-              <span className="font-mono">12.4k</span>
-            </a>
-            <a
-              href="#cta"
-              className="inline-flex items-center gap-1.5 text-sm px-4 py-1.5 rounded-full bg-foreground text-background hover:opacity-90 transition-opacity font-medium"
-            >
-              Get Started
-            </a>
-          </div>
-        </div>
-      </div>
-    </header>
   );
 }
 
@@ -227,7 +174,7 @@ function Hero() {
         >
           <div className="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs font-mono text-muted-foreground mb-8">
             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse-glow" />
-            v0.4 — Frontend extraction now in beta
+            v1.0.1 — Production ready
           </div>
 
           <h1 className="text-5xl md:text-7xl font-display font-semibold tracking-tight leading-[1.02]">
@@ -240,6 +187,8 @@ function Hero() {
             MCPify automatically transforms applications, APIs, frontends, workflows, and databases into AI-native systems for autonomous agents.
           </p>
 
+          <CopyCommand command="npx mcpify-cli analyze" />
+
           <div className="mt-9 flex items-center justify-center gap-3 flex-wrap">
             <a
               href="#cta"
@@ -249,7 +198,7 @@ function Hero() {
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
             </a>
             <a
-              href="#terminal"
+              href="/demo.html"
               className="inline-flex items-center gap-2 px-5 py-3 rounded-full glass text-foreground hover:bg-foreground/5 transition-colors"
             >
               View Demo
@@ -268,6 +217,34 @@ function Hero() {
         </motion.div>
       </div>
     </section>
+  );
+}
+
+function CopyCommand({ command }: { command: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(command);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div 
+      onClick={handleCopy}
+      className="mt-8 mb-2 mx-auto max-w-sm flex items-center justify-between gap-3 p-1.5 pl-5 bg-background border-[3px] border-border rounded-full font-mono text-sm shadow-[var(--shadow-toon-sm)] cursor-pointer hover:-translate-y-0.5 hover:shadow-[var(--shadow-toon)] transition-all select-none"
+    >
+      <div className="flex items-center gap-3 text-muted-foreground overflow-hidden">
+        <span className="text-primary font-bold">{">"}</span>
+        <span className="text-foreground truncate">{command}</span>
+      </div>
+      <button 
+        aria-label="Copy command"
+        className="w-9 h-9 rounded-full flex items-center justify-center bg-foreground text-background shrink-0 hover:bg-foreground/90 transition-colors"
+      >
+        {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+      </button>
+    </div>
   );
 }
 
@@ -387,18 +364,19 @@ function HeroDiagram() {
         </div>
       </div>
 
-      {["checkoutCart()", "refundOrder()", "sendEmail()"].map((t, i) => (
-        <motion.div
-          key={t}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, y: [0, -8, 0] }}
-          transition={{ delay: 1 + i * 0.2, y: { duration: 4 + i, repeat: Infinity, ease: "easeInOut" } }}
-          className="absolute glass rounded-md px-2.5 py-1 text-[10px] font-mono text-primary"
-          style={{ right: "6%", top: `${6 + i * 10}%` }}
-        >
-          ✓ {t}
-        </motion.div>
-      ))}
+      <div className="absolute right-[4%] top-[4%] flex flex-col gap-3 items-end">
+        {["checkoutCart()", "refundOrder()", "sendEmail()"].map((t, i) => (
+          <motion.div
+            key={t}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, y: [0, -8, 0] }}
+            transition={{ delay: 1 + i * 0.2, y: { duration: 4 + i, repeat: Infinity, ease: "easeInOut" } }}
+            className="glass rounded-md px-2.5 py-1 text-[10px] font-mono text-primary w-fit"
+          >
+            ✓ {t}
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -410,6 +388,7 @@ function Problem() {
       eyebrow="The Problem"
       title="Software wasn't built for agents."
       description="Today's apps are built for humans — disconnected from AI, glued together with brittle integrations and hand-written MCP boilerplate. AI agents can read your screen, but they can't actually drive your software."
+      centered
     >
       <div className="grid md:grid-cols-2 gap-5">
         <Compare
@@ -521,6 +500,7 @@ function Architecture() {
       eyebrow="Architecture"
       title="Built for the way agents actually operate."
       description="A layered system that keeps your application untouched while exposing exactly what agents need — and nothing more."
+      centered
     >
       <ArchitectureStack layers={layers} />
     </Section>
@@ -581,12 +561,10 @@ function Footer() {
             The AI Enablement Compiler. Infrastructure for the future of AI software.
           </p>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 text-sm">
+        <div className="grid grid-cols-2 sm:grid-cols-2 gap-8 text-sm">
           {[
             { h: "Product", l: ["Docs", "Examples", "Roadmap"] },
-            { h: "Community", l: ["GitHub", "Discord", "Twitter"] },
-            { h: "Company", l: ["About", "Blog", "Careers"] },
-            { h: "Legal", l: ["Privacy", "Terms", "Security"] },
+            { h: "Community", l: ["GitHub"] },
           ].map((c) => (
             <div key={c.h}>
               <div className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-3">{c.h}</div>

@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MCPify — Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    /* ═══════════════════════════════════════════════════════
+       DESIGN TOKENS — exact copy of landing page :root
+    ═══════════════════════════════════════════════════════ */
+    :root {
+      --bg:        oklch(0.965 0.025 90);   /* cream paper */
+      --fg:        oklch(0.14 0.03 285);    /* ink near-black */
+      --card:      oklch(0.985 0.015 90);
+      --muted:     oklch(0.93 0.03 90);
+      --muted-fg:  oklch(0.35 0.04 285);
+      --primary:   oklch(0.72 0.16 305);   /* toon-purple */
+      --secondary: oklch(0.84 0.17 70);    /* toon-yellow */
+      --accent:    oklch(0.74 0.17 5);     /* toon-pink */
+      --destructive: oklch(0.65 0.22 25);
+      --border:    oklch(0.14 0.03 285);   /* ink — same as fg */
+      --lime:      oklch(0.88 0.21 130);   /* toon-lime / electric */
+      --pink:      oklch(0.74 0.17 5);
+      --purple:    oklch(0.72 0.16 305);
+      --peach:     oklch(0.78 0.15 50);
+      --yellow:    oklch(0.84 0.17 70);
+      --mint:      oklch(0.88 0.09 180);
+      --outline-w: 3px;
+      --radius:    1.1rem;
+      --shadow-sm: 3px 3px 0 0 oklch(0.14 0.03 285);
+      --shadow:    6px 6px 0 0 oklch(0.14 0.03 285);
+      --shadow-lg: 10px 10px 0 0 oklch(0.14 0.03 285);
+      --font-sans: 'Fredoka', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+      --gradient-text: linear-gradient(135deg,
+        oklch(0.84 0.17 70) 0%,
+        oklch(0.74 0.17 5)  28%,
+        oklch(0.72 0.16 305) 55%,
+        oklch(0.88 0.21 130) 80%,
+        oklch(0.78 0.15 50) 100%);
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+      background-color: var(--bg);
+      font-family: var(--font-sans);
+      font-weight: 600;
+      color: var(--fg);
+      -webkit-font-smoothing: antialiased;
+      /* Landing page body background-image */
+      background-image:
+        radial-gradient(circle at 12% 18%, oklch(0.74 0.17 5 / 0.18),   transparent 38%),
+        radial-gradient(circle at 88% 12%, oklch(0.88 0.21 130 / 0.18), transparent 38%),
+        radial-gradient(circle at 70% 85%, oklch(0.72 0.16 305 / 0.18), transparent 42%),
+        radial-gradient(circle at 20% 90%, oklch(0.88 0.09 180 / 0.20), transparent 40%);
+    }
+
+    /* Hide scrollbars globally (for recording) */
+    * { scrollbar-width: none; }
+    *::-webkit-scrollbar { display: none; }
+
+    /* Grid-bg — landing page @utility grid-bg */
+    .grid-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(to right,  oklch(0.12 0 0 / 0.07) 1px, transparent 1px),
+        linear-gradient(to bottom, oklch(0.12 0 0 / 0.07) 1px, transparent 1px);
+      background-size: 52px 52px;
+    }
+
+    /* Glass — landing page @utility glass */
+    .glass {
+      background: oklch(0.99 0 0);
+      border: var(--outline-w) solid var(--fg);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+    }
+
+    /* ── Scene management ─────────────────────────────── */
+    .scene {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.65s cubic-bezier(0.4,0,0.2,1);
+      overflow: hidden;
+    }
+    .scene.active { opacity: 1; }
+
+    /* Progress bar */
+    #prog {
+      position: fixed;
+      bottom: 0; left: 0;
+      height: 4px;
+      border-radius: 0;
+      background: linear-gradient(90deg, var(--purple), var(--lime));
+      width: 0%;
+      z-index: 999;
+      transition: width 0.1s linear;
+      box-shadow: 0 0 8px oklch(0.72 0.16 305 / 0.5);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       SCENE 1 — INTRO
+    ═══════════════════════════════════════════════════ */
+    #s-intro { flex-direction: column; gap: 0; text-align: center; }
+
+    .intro-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Eyebrow badge — exact match to landing page Section eyebrow */
+    .eyebrow-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      background: oklch(0.99 0 0);
+      border: var(--outline-w) solid var(--fg);
+      box-shadow: var(--shadow-sm);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .pulse-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+      animation: pulseDot 2s ease-in-out infinite;
+    }
+    @keyframes pulseDot { 0%,100%{transform:scale(1)} 50%{transform:scale(1.4)} }
+
+    /* Hero h1 — matches landing page .gradient-text */
+    .intro-h1 {
+      font-size: 64px;
+      font-weight: 700;
+      letter-spacing: -2px;
+      line-height: 1.02;
+      color: var(--fg);
+    }
+    .gradient-span {
+      background: var(--gradient-text);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      /* drop-shadow outline from landing page gradient-text utility */
+      filter:
+        drop-shadow( 1px  0   oklch(0.14 0.03 285))
+        drop-shadow(-1px  0   oklch(0.14 0.03 285))
+        drop-shadow( 0    1px oklch(0.14 0.03 285))
+        drop-shadow( 0   -1px oklch(0.14 0.03 285))
+        drop-shadow( 2px  2px 0 oklch(0.14 0.03 285));
+    }
+    .intro-sub {
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--muted-fg);
+      max-width: 460px;
+      line-height: 1.55;
+    }
+    /* Command chip — glass style */
+    .intro-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 22px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--fg);
+      background: oklch(0.99 0 0);
+      border: var(--outline-w) solid var(--fg);
+      box-shadow: var(--shadow-sm);
+    }
+    .chip-play {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--fg);
+      border: 2px solid var(--fg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px;
+      color: var(--lime);
+      flex-shrink: 0;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       SCENE 2 — TERMINAL
+       Matches TerminalAnimation.tsx exactly
+    ═══════════════════════════════════════════════════ */
+    #s-terminal {
+      padding: 24px 44px 24px 44px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .term-win {
+      width: 100%;
+      max-width: 1160px;
+      /* glass + shadow-toon-lg */
+      background: oklch(0.99 0 0);
+      border: var(--outline-w) solid var(--fg);
+      box-shadow: var(--shadow-lg);
+      border-radius: 1.5rem;
+      overflow: hidden;
+    }
+
+    /* Traffic-light header — exact match to TerminalAnimation.tsx */
+    .term-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      background: oklch(0.96 0.02 90);
+      border-bottom: 3px solid var(--fg);
+    }
+    .tl { display: flex; gap: 8px; }
+    .tl-dot {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--fg);
+      display: block;
+    }
+    .tl-r { background: oklch(0.65 0.22 25); }   /* destructive */
+    .tl-y { background: oklch(0.84 0.17 70); }   /* toon-yellow */
+    .tl-g { background: oklch(0.88 0.21 130); }  /* toon-lime */
+    .term-title {
+      flex: 1;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 500;
+      color: oklch(0.35 0.04 285);
+    }
+
+    /* Terminal body — bg-foreground text-cream (from TerminalAnimation.tsx) */
+    .term-body {
+      padding: 18px 26px 18px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.7;
+      background: var(--fg);                    /* ink */
+      color: oklch(0.96 0.02 90);               /* cream */
+      font-weight: 400;
+      height: 554px;
+      overflow-y: auto;
+    }
+
+    /* Text colour tokens inside the dark terminal body */
+    .t-cmd  { color: oklch(0.72 0.16 305); font-weight: 600; } /* purple — $ prompt  */
+    .t-glow { color: oklch(0.84 0.17 70); }                    /* yellow — ✓ items   */
+    .t-ok   { color: oklch(0.88 0.21 130); font-weight: 600; } /* lime   — success   */
+    .t-dim  { color: oklch(0.96 0.02 90 / 0.55); }             /* cream dim          */
+    .t-spin { color: oklch(0.84 0.17 70); }                    /* yellow spinner     */
+    .t-pink { color: oklch(0.74 0.17 5); }                     /* pink — blocked     */
+    .t-mint { color: oklch(0.88 0.09 180); }
+    .t-text { color: oklch(0.96 0.02 90); }
+
+    /* Permission badges inside terminal */
+    .tbadge {
+      display: inline-block;
+      padding: 0 7px;
+      border-radius: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      vertical-align: middle;
+      line-height: 18px;
+      border: 1.5px solid;
+      letter-spacing: 0.3px;
+    }
+    .tbadge-safe { background: oklch(0.88 0.21 130 / 0.15); color: oklch(0.88 0.21 130); border-color: oklch(0.88 0.21 130 / 0.7); }
+    .tbadge-conf { background: oklch(0.84 0.17 70  / 0.15); color: oklch(0.84 0.17 70);  border-color: oklch(0.84 0.17 70  / 0.7); }
+    .tbadge-blkd { background: oklch(0.74 0.17 5   / 0.15); color: oklch(0.74 0.17 5);   border-color: oklch(0.74 0.17 5   / 0.7); }
+    .tbadge-wf   { background: oklch(0.72 0.16 305 / 0.15); color: oklch(0.72 0.16 305); border-color: oklch(0.72 0.16 305 / 0.7); }
+
+    /* Cursor — inline lime block (from TerminalAnimation.tsx) */
+    .tcur {
+      display: inline-block;
+      width: 9px; height: 15px;
+      background: oklch(0.88 0.21 130);
+      vertical-align: middle;
+      margin-left: 2px;
+      border-radius: 2px;
+      animation: tcBlink 1s steps(1) infinite;
+    }
+    @keyframes tcBlink { 50% { opacity: 0; } }
+
+    /* Line-in animation */
+    .tl-in { animation: tLineIn 0.18s ease forwards; }
+    @keyframes tLineIn {
+      from { opacity:0; transform: translateX(-6px) translateY(3px); }
+      to   { opacity:1; transform: none; }
+    }
+
+    /* ═══════════════════════════════════════════════════
+       SCENE 3 — CHAT (Codex + MCPify) -> SLEEK DARK REDESIGN
+    ═══════════════════════════════════════════════════ */
+    #s-chat {
+      padding: 24px;
+      align-items: center;
+      justify-content: center;
+      background: oklch(0.12 0.01 285);
+      background-image: 
+        radial-gradient(circle at top right, oklch(0.20 0.05 305 / 0.4), transparent 40%),
+        radial-gradient(circle at bottom left, oklch(0.15 0.05 200 / 0.4), transparent 40%);
+    }
+    #s-chat::before { display: none; } /* remove grid */
+
+    .chat-layout {
+      display: flex;
+      width: 1040px;
+      height: 640px;
+      gap: 20px;
+      border-radius: 16px;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .s-card {
+      background: rgba(20, 20, 25, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .s-eyebrow {
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: oklch(0.60 0.01 285);
+      margin-bottom: 12px;
+    }
+
+    .status-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .live-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: oklch(0.85 0.15 140);
+      box-shadow: 0 0 10px oklch(0.85 0.15 140 / 0.6);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .status-label { font-size: 14px; color: #fff; font-weight: 500; }
+    .status-detail { font-family: var(--font-mono); font-size: 11px; color: oklch(0.50 0.01 285); margin-top: 4px; }
+
+    .s-card.tools { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+    .tool-list { display: flex; flex-direction: column; gap: 4px; flex: 1; overflow-y: auto; }
+    .tool-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: oklch(0.70 0.01 285);
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    .tool-row.hl {
+      background: rgba(168, 85, 247, 0.1);
+      border-color: rgba(168, 85, 247, 0.3);
+      color: #e9d5ff;
+    }
+    .tool-row.hl-y {
+      background: rgba(234, 179, 8, 0.1);
+      border-color: rgba(234, 179, 8, 0.3);
+      color: #fef08a;
+    }
+    .stb {
+      font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 600;
+      background: rgba(255,255,255,0.05); color: #aaa;
+    }
+    .stb-s { background: rgba(34, 197, 94, 0.15); color: #86efac; }
+    .stb-c { background: rgba(234, 179, 8, 0.15); color: #fde047; }
+    .stb-b { background: rgba(239, 68, 68, 0.15); color: #fca5a5; }
+    .stb-w { background: rgba(168, 85, 247, 0.15); color: #d8b4fe; }
+
+    /* Chat Main */
+    .chat-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: rgba(15, 15, 20, 0.7);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+    }
+
+    .chat-hdr {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.01);
+    }
+    .codex-avatar {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, #a855f7, #ec4899);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: #fff;
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+    }
+    .hdr-info { flex: 1; }
+    .hdr-name { font-size: 15px; font-weight: 600; color: #fff; }
+    .hdr-sub { font-size: 12px; color: oklch(0.60 0.01 285); margin-top: 2px; }
+    .conn-pill {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 20px;
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      font-size: 11px; font-weight: 600; color: #4ade80;
+    }
+
+    .chat-msgs {
+      flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto;
+    }
+    .msg { max-width: 85%; animation: fadeUp 0.3s ease forwards; opacity: 0; transform: translateY(10px); }
+    .msg.user { align-self: flex-end; }
+    .msg.agent { align-self: flex-start; display: flex; flex-direction: column; gap: 6px; }
+
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+    .msg-lbl { display: none; }
+
+    .bubble {
+      padding: 12px 16px; font-size: 14px; line-height: 1.6; border-radius: 12px;
+    }
+    .msg.user .bubble {
+      background: #fff; color: #000;
+      border-bottom-right-radius: 4px;
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+      font-weight: 500;
+    }
+    .msg.agent .bubble {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
+      border-bottom-left-radius: 4px;
+    }
+
+    .ic {
+      font-family: var(--font-mono); font-size: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 6px; border-radius: 4px; color: #a855f7;
+    }
+
+    .tool-box {
+      background: rgba(15, 15, 20, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-left: 3px solid #a855f7;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-family: var(--font-mono); font-size: 12px;
+    }
+    .tb-hdr { display: flex; align-items: center; gap: 8px; color: #a855f7; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 8px; }
+    .tb-name { color: #fff; font-weight: 600; margin-bottom: 4px; }
+    .tb-args { color: #94a3b8; margin-bottom: 8px; }
+    .tb-result { border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 8px; color: #4ade80; }
+
+    .confirm-box {
+      background: rgba(234, 179, 8, 0.05);
+      border: 1px solid rgba(234, 179, 8, 0.2);
+      border-left: 3px solid #eab308;
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .cnf-hdr { color: #eab308; font-weight: 600; font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;}
+    .cnf-body { color: #e2e8f0; font-size: 13px; margin-bottom: 12px; line-height: 1.5; }
+    .cnf-btns { display: flex; gap: 10px; }
+    .btn-yes { background: #eab308; color: #000; border: none; padding: 6px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; }
+    .btn-no { background: rgba(255, 255, 255, 0.1); color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: 500; font-size: 13px; cursor: pointer; }
+
+    .typing-wrap {
+      display: flex; align-items: center; gap: 6px;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px; border-bottom-left-radius: 4px;
+      width: fit-content;
+    }
+    .td { width: 6px; height: 6px; border-radius: 50%; background: #64748b; animation: tdBounce 1.4s infinite ease-in-out both; }
+    .td:nth-child(1) { animation-delay: -0.32s; }
+    .td:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes tdBounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+    .wf-steps { display: flex; flex-direction: column; gap: 6px; font-family: var(--font-mono); font-size: 11px; margin-top: 8px; }
+    .wf { color: #64748b; display: flex; align-items: center; gap: 6px; }
+    .wf::before { content: '○'; font-size: 14px; }
+    .wf.active { color: #eab308; }
+    .wf.active::before { content: '◐'; animation: spin 2s linear infinite; }
+    .wf.done { color: #4ade80; }
+    .wf.done::before { content: '●'; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    .inp-bar {
+      padding: 16px 20px;
+      background: rgba(255, 255, 255, 0.02);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .inp-field {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 14px; color: #fff;
+      display: flex; align-items: center;
+    }
+    .inp-cur { display: inline-block; width: 2px; height: 16px; background: #fff; margin-left: 2px; animation: blink 1s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    .send-btn {
+      width: 40px; height: 40px; border-radius: 8px;
+      background: #fff; color: #000; border: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; cursor: pointer;
+    }
+    
+    /* ═══════════════════════════════════════════════════
+       SCENE 4 — OUTRO
+    ═══════════════════════════════════════════════════ */
+    #s-outro { flex-direction: column; }
+
+    .outro-inner {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 18px;
+      position: relative; z-index: 1;
+    }
+    .outro-logo {
+      font-size: 82px;
+      font-weight: 700;
+      letter-spacing: -4px;
+      line-height: 1;
+      background: var(--gradient-text);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter:
+        drop-shadow( 1px  0   oklch(0.14 0.03 285))
+        drop-shadow(-1px  0   oklch(0.14 0.03 285))
+        drop-shadow( 0    1px oklch(0.14 0.03 285))
+        drop-shadow( 0   -1px oklch(0.14 0.03 285))
+        drop-shadow( 3px  3px 0 oklch(0.14 0.03 285));
+      animation: shimmer 3s ease infinite;
+    }
+    @keyframes shimmer {
+      0%,100% { background-position:0% 50%; }
+      50%      { background-position:100% 50%; }
+    }
+    .outro-tag {
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--muted-fg);
+    }
+
+    
+  </style>
+</head>
+<body>
+
+<div id="prog"></div>
+
+<!-- ══════════════════ SCENE 1: INTRO ══════════════════ -->
+<div class="scene grid-bg" id="s-intro">
+  <div class="intro-inner">
+    <div class="eyebrow-badge">
+      <span class="pulse-dot"></span>
+      Live Demo
+    </div>
+    <div class="intro-h1">
+      <span class="gradient-span">Compile Software</span><br>
+      <span style="color:var(--fg)">into AI-Operable Systems</span>
+    </div>
+    <p class="intro-sub">MCPify analyzes your app and generates a runnable MCP server — typed, permissioned, and agent-ready.</p>
+    <div class="intro-chip">
+      <span class="chip-play">▶</span>
+      npm run mcpify -- analyze examples/ecommerce-saas
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ SCENE 2: TERMINAL ══════════════════ -->
+<div class="scene grid-bg" id="s-terminal">
+  <div class="term-win">
+    <div class="term-bar">
+      <div class="tl">
+        <span class="tl-dot tl-r"></span>
+        <span class="tl-dot tl-y"></span>
+        <span class="tl-dot tl-g"></span>
+      </div>
+      <div class="term-title">~/ecommerce-saas — mcpify — zsh</div>
+    </div>
+    <div class="term-body" id="tb"></div>
+  </div>
+</div>
+
+<!-- ══════════════════ SCENE 3: CHAT ══════════════════ -->
+<div class="scene grid-bg" id="s-chat">
+  <div class="chat-layout">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Status card -->
+      <div class="s-card">
+        <div class="s-eyebrow">MCP Server</div>
+        <div class="status-row">
+          <div class="live-dot"></div>
+          <span class="status-label">Connected</span>
+        </div>
+        <div class="status-detail">ecommerce-saas/.mcpify</div>
+        <div class="status-detail">MCP 1.0 · stdio transport</div>
+      </div>
+      <!-- Tool list card -->
+      <div class="s-card tools">
+        <div class="s-eyebrow">Available Tools</div>
+        <div class="tool-list" id="tl">
+          <div class="tool-row" data-t="getOrdersByStatus"><span class="stb stb-s">SAFE</span>getOrdersByStatus</div>
+          <div class="tool-row" data-t="checkoutCart"><span class="stb stb-s">SAFE</span>checkoutCart</div>
+          <div class="tool-row" data-t="applyDiscountCode"><span class="stb stb-s">SAFE</span>applyDiscountCode</div>
+          <div class="tool-row" data-t="searchOrders"><span class="stb stb-s">SAFE</span>searchOrders</div>
+          <div class="tool-row" data-t="getUserById"><span class="stb stb-s">SAFE</span>getUserById</div>
+          <div class="tool-row" data-t="createSupportTicket"><span class="stb stb-s">SAFE</span>createSupportTicket</div>
+          <div class="tool-row" data-t="refundOrder"><span class="stb stb-c">CONF</span>refundOrder</div>
+          <div class="tool-row" data-t="cancelOrder"><span class="stb stb-c">CONF</span>cancelOrder</div>
+          <div class="tool-row" data-t="deleteUser"><span class="stb stb-b">BLKD</span>deleteUser</div>
+          <div class="tool-row" data-t="completePurchase"><span class="stb stb-w">WF</span>completePurchase</div>
+          <div class="tool-row" data-t="resolveRefund"><span class="stb stb-w">WF</span>resolveRefund</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat main -->
+    <div class="chat-main">
+      <!-- Header -->
+      <div class="chat-hdr">
+        <div class="codex-avatar">✦</div>
+        <div class="hdr-info">
+          <div class="hdr-name">Codex</div>
+          <div class="hdr-sub">Connected to ecommerce-saas MCP server · 11 tools available</div>
+        </div>
+        <div class="conn-pill">
+          <div class="live-dot" style="width:8px;height:8px;"></div>
+          MCP Active
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div class="chat-msgs" id="cm"></div>
+
+      <!-- Input bar -->
+      <div class="inp-bar">
+        <div class="inp-field">
+          <span id="inp-txt"></span><span class="inp-cur" id="inp-cur" style="display:none"></span>
+        </div>
+        <button class="send-btn">➤</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════ SCENE 4: OUTRO ══════════════════ -->
+<div class="scene grid-bg" id="s-outro">
+  <div class="outro-inner">
+    <div class="eyebrow-badge">
+      <span class="pulse-dot"></span>
+      Open Source · github.com/amarnath3003/MCPify
+    </div>
+    <div class="outro-logo">MCPify</div>
+    <div class="outro-tag">Compile software into AI-operable systems.</div>
+    <div class="intro-chip" style="margin-top:4px;">
+      <span>✓ Analyzed</span>
+      <span style="color:var(--muted-fg)">·</span>
+      <span>✓ Generated</span>
+      <span style="color:var(--muted-fg)">·</span>
+      <span>✓ Agent-Ready</span>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   ANIMATION ENGINE
+═══════════════════════════════════════════════════════ */
+const $  = id => document.getElementById(id);
+const sl = ms => new Promise(r => setTimeout(r, ms));
+
+function showScene(id) {
+  document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+
+function hlTool(name, cls = 'hl') {
+  document.querySelectorAll('.tool-row').forEach(r => r.classList.remove('hl','hl-y'));
+  if (name) {
+    const el = document.querySelector(`[data-t="${name}"]`);
+    if (el) el.classList.add(cls);
+  }
+}
+
+/* ── Terminal helpers ──────────────────────────────── */
+const tb = $('tb');
+
+function tLine(html) {
+  const d = document.createElement('div');
+  d.className = 'tl-in';
+  d.innerHTML = html;
+  tb.appendChild(d);
+  tb.scrollTop = tb.scrollHeight;
+  return d;
+}
+
+async function tType(text) {
+  const wrap = document.createElement('div');
+  wrap.className = 'tl-in';
+  wrap.innerHTML = `<span class="t-cmd">❯</span>&nbsp;<span class="t-cmd" id="tc"></span><span class="tcur"></span>`;
+  tb.appendChild(wrap);
+  const tc = wrap.querySelector('#tc');
+  for (let i = 0; i <= text.length; i++) { tc.textContent = text.slice(0,i); await sl(16); }
+  wrap.querySelector('.tcur').remove();
+  tb.scrollTop = tb.scrollHeight;
+}
+
+async function tStep(label, result, dur = 900) {
+  const chars = ['⠋','⠙','⠹','⠸','⠼','⠴','⠦','⠧','⠇','⠏'];
+  let si = 0;
+  const d = document.createElement('div');
+  d.className = 'tl-in';
+  d.innerHTML = `<span class="t-spin" id="sp">${chars[0]}</span>&nbsp;<span class="t-dim">${label}</span>`;
+  tb.appendChild(d);
+  tb.scrollTop = tb.scrollHeight;
+  const sp = d.querySelector('#sp');
+  const iv = setInterval(() => { sp.textContent = chars[++si % chars.length]; }, 80);
+  await sl(dur);
+  clearInterval(iv);
+  d.innerHTML = `<span class="t-ok">✓</span>&nbsp;${result}`;
+}
+
+/* ── Chat helpers ──────────────────────────────────── */
+const cm = $('cm');
+
+async function typeInput(text) {
+  const cur = $('inp-cur'), txt = $('inp-txt');
+  cur.style.display = 'inline-block';
+  for (let i = 0; i <= text.length; i++) { txt.textContent = text.slice(0,i); await sl(34); }
+  await sl(300);
+  cur.style.display = 'none';
+  txt.textContent = '';
+}
+
+function addMsg(cls, lbl, html) {
+  const d = document.createElement('div');
+  d.className = `msg ${cls}`;
+  d.innerHTML = `<div class="msg-lbl">${lbl}</div><div class="bubble">${html}</div>`;
+  cm.appendChild(d);
+  cm.scrollTop = cm.scrollHeight;
+  return d;
+}
+
+async function think(ms = 1200) {
+  const d = document.createElement('div');
+  d.className = 'msg agent';
+  d.innerHTML = `<div class="msg-lbl">Codex</div><div class="typing-wrap"><div class="td"></div><div class="td"></div><div class="td"></div></div>`;
+  cm.appendChild(d);
+  await sl(ms);
+  cm.removeChild(d);
+}
+
+function toolBox(name, args, result) {
+  const d = document.createElement('div');
+  d.className = 'tool-box';
+  d.innerHTML = `
+    <div class="tb-hdr">⚙ Tool Call</div>
+    <div class="tb-name">${name}</div>
+    <div class="tb-args">${JSON.stringify(args, null, 2)}</div>
+    ${result ? `<div class="tb-result">→ ${result}</div>` : ''}
+  `;
+  cm.appendChild(d);
+  cm.scrollTop = cm.scrollHeight;
+  return d;
+}
+
+/* ── Progress ──────────────────────────────────────── */
+const prog = $('prog');
+const TOTAL = 41000;
+let t0 = 0;
+function tickProg() {
+  const p = Math.min(100, ((Date.now()-t0)/TOTAL)*100);
+  prog.style.width = p + '%';
+  if (p < 100) requestAnimationFrame(tickProg);
+}
+
+/* ═══════════════════════════════════════════════════════
+   MAIN SEQUENCE (~41 seconds total)
+═══════════════════════════════════════════════════════ */
+async function run() {
+  t0 = Date.now(); tickProg();
+
+  /* ── SCENE 1: INTRO  (0–2.2s) ─────────────────── */
+  showScene('s-intro');
+  await sl(2300);
+
+  /* ── SCENE 2: TERMINAL  (2.2–17.5s) ──────────── */
+  showScene('s-terminal');
+  await sl(300);
+
+  tLine('');
+  tLine('<span class="t-cmd" style="font-size:13px;">&nbsp;&nbsp;⚡&nbsp; MCPify</span><span class="t-dim"> — AI Enablement Compiler</span>');
+  tLine('');
+  await sl(350);
+
+  await tType('npm run mcpify -- analyze examples/ecommerce-saas \\');
+  tLine('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--output examples/ecommerce-saas/.mcpify \\');
+  tLine('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--prisma examples/ecommerce-saas/prisma/schema.prisma \\');
+  tLine('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--swagger examples/ecommerce-saas/openapi.json');
+  tLine('');
+  await sl(480);
+
+  await tStep('Analyzing backend TypeScript/JavaScript…', '<span class="t-dim">12 backend actions found</span>', 1000);
+  await tStep('Converting OpenAPI spec…',                 '<span class="t-dim">8 API endpoints converted</span>', 750);
+  await tStep('Analyzing Prisma schema…',                 '<span class="t-dim">16 database operations generated</span>', 850);
+  await tStep('Analyzing event listeners and webhooks…',  '<span class="t-dim">3 event-driven operations found</span>', 750);
+  await tStep('Analyzing frontend components…',           '<span class="t-dim">6 UI actions found</span>', 850);
+  await tStep('Detecting workflows…',                     '<span class="t-dim">4 workflows detected</span>', 920);
+  await tStep('Classifying permissions…',                 '<span class="t-dim">Permissions classified</span>', 620);
+  await tStep('Generating MCP server…',                   '<span class="t-dim">MCP server generated</span>', 880);
+
+  tLine('');
+  tLine('<span class="t-ok" style="font-size:13px;">&nbsp;&nbsp;✓ MCPify complete!</span>');
+  tLine('');
+  tLine('<span class="t-dim">&nbsp;&nbsp;Generated files:</span>');
+  for (const f of ['server.ts','tools.ts','handlers.ts','workflows.ts','schemas.ts','AGENTS.md']) {
+    await sl(60);
+    tLine(`&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-dim">→</span>&nbsp;<span class="t-text">${f}</span>`);
+  }
+  tLine('');
+  tLine('<span class="t-text">&nbsp;&nbsp;Generated tools:</span>');
+  await sl(100);
+
+  const tools = [
+    ['tbadge-safe','SAFE',      'checkoutCart()'],
+    ['tbadge-safe','SAFE',      'applyDiscountCode()'],
+    ['tbadge-safe','SAFE',      'getOrdersByStatus()'],
+    ['tbadge-safe','SAFE',      'searchOrders()'],
+    ['tbadge-conf','REQ_CONF',  'refundOrder()'],
+    ['tbadge-conf','REQ_CONF',  'cancelOrder()'],
+    ['tbadge-blkd','BLOCKED',   'deleteAllOrders()'],
+    ['tbadge-wf',  '🔄 WF',    'completePurchaseWorkflow()'],
+    ['tbadge-wf',  '🔄 WF',    'resolveRefundWorkflow()'],
+  ];
+  for (const [cls, lbl, fn] of tools) {
+    await sl(55);
+    tLine(`&nbsp;&nbsp;&nbsp;&nbsp;<span class="tbadge ${cls}">${lbl}</span>&nbsp; <span class="t-text">${fn}</span>`);
+  }
+
+  tLine('');
+  tLine(
+    `&nbsp;&nbsp;<span class="t-ok">✅ 4 safe</span>&nbsp;&nbsp;` +
+    `<span class="t-glow">⚠️ 2 confirm</span>&nbsp;&nbsp;` +
+    `<span class="t-pink">🚫 1 blocked</span>&nbsp;&nbsp;` +
+    `<span class="t-cmd">🔄 4 workflows</span>`
+  );
+  tLine(`&nbsp;&nbsp;<span class="t-dim">Output:</span> <span class="t-cmd">examples/ecommerce-saas/.mcpify</span>`);
+  tLine(`&nbsp;&nbsp;<span class="t-dim">Next:&nbsp;&nbsp;</span><span class="t-cmd">cd .mcpify &amp;&amp; npm install &amp;&amp; npm run build</span>`);
+  tLine('');
+  await sl(2000);
+
+  /* ── SCENE 3: CHAT  (17.5–38.5s) ─────────────── */
+  showScene('s-chat');
+  await sl(650);
+
+  /* Beat 1 — SAFE: list pending orders */
+  await typeInput('Show me all pending orders');
+  addMsg('user', 'You', 'Show me all pending orders');
+  await think(1400);
+  hlTool('getOrdersByStatus');
+  const box1 = toolBox('getOrdersByStatus', { status: 'pending' });
+  await sl(600);
+  box1.querySelector('.tb-args').insertAdjacentHTML('afterend',
+    `<div class="tb-result">→ [{"id":"order_001","customerId":"user_001","status":"pending","total":208,"items":[{"productId":"prod_keyboard","qty":1},{"productId":"prod_mouse","qty":1}]}]</div>`
+  );
+  await sl(450);
+  hlTool(null);
+  addMsg('agent', 'Codex',
+    `Found <strong>1 pending order</strong>:<br><br>
+     📦 <strong>order_001</strong> &nbsp;·&nbsp; customer <span class="ic">user_001</span> &nbsp;·&nbsp; <strong>$208.00</strong><br>
+     Items: Mechanical Keyboard × 1, Precision Mouse × 1<br>
+     Payment: <span class="ic">unpaid</span>`
+  );
+  await sl(2000);
+
+  /* Beat 2 — REQ_CONFIRMATION: refund with confirm gate */
+  await typeInput('Refund order_001 for Ava');
+  addMsg('user', 'You', 'Refund order_001 for Ava');
+  await think(1200);
+  hlTool('refundOrder', 'hl-y');
+
+  const agentRefund = document.createElement('div');
+  agentRefund.className = 'msg agent';
+  agentRefund.innerHTML = '<div class="msg-lbl">Codex</div>';
+  cm.appendChild(agentRefund);
+  cm.scrollTop = cm.scrollHeight;
+
+  const cBox = document.createElement('div');
+  cBox.className = 'confirm-box';
+  cBox.innerHTML = `
+    <div class="cnf-hdr">⚠ Confirmation Required</div>
+    <div class="cnf-body">
+      Refund <strong>$208.00</strong> for order <strong>order_001</strong>?<br>
+      Status will change to <span class="ic">refunded</span>. Cannot be undone.
+    </div>
+    <div class="cnf-btns">
+      <button class="btn-yes" id="yb">✓ Confirm Refund</button>
+      <button class="btn-no">✕ Cancel</button>
+    </div>
+  `;
+  agentRefund.appendChild(cBox);
+  cm.scrollTop = cm.scrollHeight;
+
+  await sl(2100);
+  $('yb').classList.add('pressed');
+  await sl(350);
+
+  toolBox('refundOrder', { orderId: 'order_001', __confirmed: true },
+    '{"id":"order_001","status":"refunded","refundAmount":208,"paymentStatus":"refunded"}'
+  );
+  await sl(550);
+  hlTool(null);
+  addMsg('agent', 'Codex',
+    `✅ <strong>order_001 refunded.</strong><br>
+     <strong>$208.00</strong> returned to Ava (<span class="ic">user_001</span>).<br>
+     Status → <span class="ic">refunded</span>`
+  );
+  await sl(2000);
+
+  /* Beat 3 — WORKFLOW: multi-step purchase */
+  await typeInput('Run purchase workflow — prod_keyboard, discount HACKATHON10');
+  addMsg('user', 'You', 'Run purchase workflow — prod_keyboard, discount HACKATHON10');
+  await think(1400);
+  hlTool('completePurchase');
+
+  const wfEl = document.createElement('div');
+  wfEl.className = 'msg agent';
+  wfEl.innerHTML = `
+    <div class="msg-lbl">Codex</div>
+    <div class="bubble">
+      Running <strong>completePurchaseWorkflow</strong>…
+      <div class="wf-steps">
+        <div class="wf active" id="ws1">⠋ Step 1/4: addItemToCart(user_001, prod_keyboard, 1)</div>
+        <div class="wf" id="ws2">&nbsp;&nbsp;Step 2/4: applyDiscountCode(user_001, HACKATHON10)</div>
+        <div class="wf" id="ws3">&nbsp;&nbsp;Step 3/4: checkoutCart(user_001)</div>
+        <div class="wf" id="ws4">&nbsp;&nbsp;Step 4/4: processPayment(order_003)</div>
+      </div>
+    </div>
+  `;
+  cm.appendChild(wfEl);
+  cm.scrollTop = cm.scrollHeight;
+
+  const ws = i => wfEl.querySelector('#ws' + i);
+  await sl(850);
+  ws(1).className='wf done'; ws(1).textContent='✓ addItemToCart → cart updated ($129.00)';
+  ws(2).className='wf active'; ws(2).textContent='⠋ applyDiscountCode(HACKATHON10)';
+  await sl(750);
+  ws(2).className='wf done'; ws(2).textContent='✓ applyDiscountCode → −10%  = $116.10';
+  ws(3).className='wf active'; ws(3).textContent='⠋ checkoutCart(user_001)';
+  await sl(700);
+  ws(3).className='wf done'; ws(3).textContent='✓ checkoutCart → order_003 created';
+  ws(4).className='wf active'; ws(4).textContent='⠋ processPayment(order_003)';
+  await sl(700);
+  ws(4).className='wf done'; ws(4).textContent='✓ processPayment → paid ✓';
+  await sl(420);
+  hlTool(null);
+  addMsg('agent', 'Codex',
+    `🎉 <strong>Workflow complete!</strong><br>
+     Order <strong>order_003</strong> &nbsp;·&nbsp; <strong>$116.10</strong> charged &nbsp;·&nbsp; Discount HACKATHON10 applied.`
+  );
+  await sl(2500);
+
+  /* ── SCENE 4: OUTRO  (38.5–42.5s) ─────────────── */
+  showScene('s-outro');
+  await sl(4200);
+
+  /* ── LOOP ──────────────────────────────────────── */
+  tb.innerHTML = '';
+  cm.innerHTML = '';
+  $('inp-txt').textContent = '';
+  $('inp-cur').style.display = 'none';
+  document.querySelectorAll('.tool-row').forEach(r => r.classList.remove('hl','hl-y'));
+  prog.style.width = '0%';
+  t0 = Date.now(); tickProg();
+  run();
+}
+
+run();
+</script>
+</body>
+</html>
