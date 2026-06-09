@@ -11,6 +11,24 @@
 </p>
 
 <p align="center">
+  <a href="https://www.npmjs.com/package/mcpify-cli">
+    <img src="https://img.shields.io/npm/v/mcpify-cli.svg" alt="npm version" />
+  </a>
+  <a href="https://github.com/amarnath3003/MCPify/actions/workflows/build.yml">
+    <img src="https://github.com/amarnath3003/MCPify/actions/workflows/build.yml/badge.svg" alt="build status" />
+  </a>
+  <a href="https://www.npmjs.com/package/mcpify-cli">
+    <img src="https://img.shields.io/npm/dm/mcpify-cli.svg" alt="npm downloads" />
+  </a>
+  <a href="https://github.com/amarnath3003/MCPify/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/amarnath3003/MCPify.svg" alt="license" />
+  </a>
+  <a href="https://github.com/amarnath3003/MCPify/stargazers">
+    <img src="https://img.shields.io/github/stars/amarnath3003/MCPify.svg" alt="stars" />
+  </a>
+</p>
+
+<p align="center">
   <a href="#overview">Overview</a> ·
   <a href="#features">Features</a> ·
   <a href="#getting-started">Getting Started</a> ·

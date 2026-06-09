@@ -1,5 +1,20 @@
 # MCPify
 
+<p align="left">
+  <a href="https://www.npmjs.com/package/mcpify-cli">
+    <img src="https://img.shields.io/npm/v/mcpify-cli.svg" alt="npm version" />
+  </a>
+  <a href="https://github.com/amarnath3003/MCPify/actions/workflows/build.yml">
+    <img src="https://github.com/amarnath3003/MCPify/actions/workflows/build.yml/badge.svg" alt="build status" />
+  </a>
+  <a href="https://www.npmjs.com/package/mcpify-cli">
+    <img src="https://img.shields.io/npm/dm/mcpify-cli.svg" alt="npm downloads" />
+  </a>
+  <a href="https://github.com/amarnath3003/MCPify/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/amarnath3003/MCPify.svg" alt="license" />
+  </a>
+</p>
+
 **Compile application code into a runnable [Model Context Protocol](https://modelcontextprotocol.io) server — and auto-register it with your AI clients.**
 
 MCPify scans the parts of an app that matter to agents (backend routes & services,
