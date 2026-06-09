@@ -174,7 +174,7 @@ function Hero() {
         >
           <div className="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs font-mono text-muted-foreground mb-8">
             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse-glow" />
-            v1.0.1 — Production ready
+            v1.0.2 — Production ready
           </div>
 
           <h1 className="text-5xl md:text-7xl font-display font-semibold tracking-tight leading-[1.02]">

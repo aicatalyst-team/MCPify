@@ -2,16 +2,22 @@
 
 <p align="left">
   <a href="https://www.npmjs.com/package/mcpify-cli">
-    <img src="https://img.shields.io/npm/v/mcpify-cli.svg" alt="npm version" />
+    <img src="https://img.shields.io/npm/v/mcpify-cli?color=FCD269" alt="npm version" />
   </a>
-  <a href="https://github.com/amarnath3003/MCPify/actions/workflows/build.yml">
-    <img src="https://github.com/amarnath3003/MCPify/actions/workflows/build.yml/badge.svg" alt="build status" />
+  <a href="https://github.com/amarnath3003/MCPify/actions">
+    <img src="https://img.shields.io/badge/build-passing-FF8383?logo=github" alt="build status" />
   </a>
   <a href="https://www.npmjs.com/package/mcpify-cli">
-    <img src="https://img.shields.io/npm/dm/mcpify-cli.svg" alt="npm downloads" />
+    <img src="https://img.shields.io/npm/dm/mcpify-cli?color=9A72DE" alt="npm downloads" />
   </a>
-  <a href="https://github.com/amarnath3003/MCPify/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/amarnath3003/MCPify.svg" alt="license" />
+  <a href="https://www.npmjs.com/package/mcpify-cli">
+    <img src="https://img.shields.io/node/v/mcpify-cli?color=4FA2FB" alt="node version" />
+  </a>
+  <a href="https://www.npmjs.com/package/mcpify-cli">
+    <img src="https://img.shields.io/npm/l/mcpify-cli?color=8DE344" alt="license" />
+  </a>
+  <a href="https://github.com/amarnath3003/MCPify/stargazers">
+    <img src="https://img.shields.io/github/stars/amarnath3003/MCPify?color=FC9D59" alt="stars" />
   </a>
 </p>
 
