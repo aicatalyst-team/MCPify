@@ -24,5 +24,3 @@ build/
 .eslintcache
 .vercel/
 .vite/
-
-.vercel
