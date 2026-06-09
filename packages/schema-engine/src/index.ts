@@ -161,3 +161,13 @@ export function tsTypeToJsonSchemaType(tsType: string): string {
   };
   return map[tsType.trim()] ?? 'string';
 }
+
+/** Sanitize a string to be a valid MCP tool name (^[a-zA-Z0-9_-]{1,64}$) */
+export function sanitizeToolName(name: string): string {
+  let sanitized = name.replace(/[^a-zA-Z0-9_-]/g, '_');
+  if (sanitized.length > 60) {
+    sanitized = sanitized.slice(0, 60);
+  }
+  // Remove trailing underscores that might look weird after truncation
+  return sanitized.replace(/_+$/, '') || 'tool';
+}

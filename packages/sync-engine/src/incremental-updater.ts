@@ -12,7 +12,8 @@ import { EventAnalyzer } from '@mcpify/event-analyzer';
 import { FrontendAnalyzer } from '@mcpify/frontend-analyzer';
 import { MCPGenerator } from '@mcpify/mcp-generator';
 import { PermissionLayer } from '@mcpify/permissions';
-import type { ClassifiedTool, ExtractedTool, Workflow } from '@mcpify/schema-engine';
+import type { ClassifiedTool, ExtractedTool, Workflow, ToolSource } from '@mcpify/schema-engine';
+import { sanitizeToolName } from '@mcpify/schema-engine';
 import { applyRuleBasedDescriptions, AIEnhancer } from '@mcpify/ai-enhancer';
 import { WorkflowEngine } from '@mcpify/workflow-engine';
 
@@ -395,9 +396,12 @@ function groupByFile(tools: ExtractedTool[]): Record<string, ExtractedTool[]> {
   return grouped;
 }
 
+
+
 function dedupeTools(tools: ExtractedTool[]): ExtractedTool[] {
   const seen = new Set<string>();
   return tools.filter(tool => {
+    tool.name = sanitizeToolName(tool.name);
     if (seen.has(tool.name)) return false;
     seen.add(tool.name);
     return true;

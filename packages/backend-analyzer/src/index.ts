@@ -60,6 +60,11 @@ export class BackendAnalyzer {
       '!' + path.join(this.rootPath, '**/dist/**'),
       '!' + path.join(this.rootPath, '**/build/**'),
       '!' + path.join(this.rootPath, '**/.next/**'),
+      '!' + path.join(this.rootPath, '**/.svelte-kit/**'),
+      '!' + path.join(this.rootPath, '**/.nuxt/**'),
+      '!' + path.join(this.rootPath, '**/coverage/**'),
+      '!' + path.join(this.rootPath, '**/out/**'),
+      '!' + path.join(this.rootPath, '**/.turbo/**'),
       '!' + path.join(this.rootPath, '**/.mcpify/**'),
     ];
     for (const pattern of patterns) {
@@ -87,6 +92,13 @@ export class BackendAnalyzer {
     return (
       p.includes('node_modules') ||
       p.includes('/dist/') ||
+      p.includes('/build/') ||
+      p.includes('/.next/') ||
+      p.includes('/.svelte-kit/') ||
+      p.includes('/.nuxt/') ||
+      p.includes('/coverage/') ||
+      p.includes('/out/') ||
+      p.includes('/.turbo/') ||
       p.includes('/.mcpify/') ||
       /\.(tsx|jsx)$/.test(p) ||
       /\.(test|spec)\.(ts|tsx|js|jsx)$/.test(p) ||
@@ -136,7 +148,7 @@ export class BackendAnalyzer {
           name,
           source:      'backend',
           description: this._extractJsDoc(method.getJsDocs()),
-          params:      method.getParameters().map(p => p.getName()),
+          params:      method.getParameters().map((p, i) => this._sanitizeParamName(p.getName(), i)),
           paramTypes:  method.getParameters().map(p => p.getType().getText()),
           returnType:  method.getReturnType().getText(),
           filePath:    sf.getFilePath(),
@@ -157,7 +169,7 @@ export class BackendAnalyzer {
       name,
       source:      'backend',
       description: this._extractJsDoc(fn.getJsDocs()),
-      params:      fn.getParameters().map(p => p.getName()),
+      params:      fn.getParameters().map((p, i) => this._sanitizeParamName(p.getName(), i)),
       paramTypes:  fn.getParameters().map(p => p.getType().getText()),
       returnType:  fn.getReturnType().getText().replace(/^Promise<(.+)>$/, '$1'),
       filePath:    fn.getSourceFile().getFilePath(),
@@ -177,7 +189,7 @@ export class BackendAnalyzer {
       name,
       source:      'backend',
       description: '',
-      params:      fn.getParameters().map(p => p.getName()),
+      params:      fn.getParameters().map((p, i) => this._sanitizeParamName(p.getName(), i)),
       paramTypes:  fn.getParameters().map(p => p.getType().getText()),
       returnType:  fn.getReturnType().getText().replace(/^Promise<(.+)>$/, '$1'),
       filePath,
@@ -199,6 +211,13 @@ export class BackendAnalyzer {
       }
     }
     return tags;
+  }
+
+  private _sanitizeParamName(name: string, index: number): string {
+    if (name.startsWith('{') || name.startsWith('[')) {
+      return `payload_${index}`;
+    }
+    return name;
   }
 
   private _deduplicate(tools: ExtractedTool[]): ExtractedTool[] {
@@ -523,6 +542,13 @@ export class MongooseAnalyzer {
       ignore: [
         '**/node_modules/**',
         '**/dist/**',
+        '**/build/**',
+        '**/.next/**',
+        '**/.svelte-kit/**',
+        '**/.nuxt/**',
+        '**/coverage/**',
+        '**/out/**',
+        '**/.turbo/**',
         '**/.mcpify/**',
         '**/*.test.*',
         '**/*.spec.*',

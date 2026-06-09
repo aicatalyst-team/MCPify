@@ -18,6 +18,7 @@ import { PermissionLayer }                                   from '@mcpify/permi
 import { MCPGenerator }                                      from '@mcpify/mcp-generator';
 import { AIEnhancer, applyRuleBasedDescriptions }            from '@mcpify/ai-enhancer';
 import type { ExtractedTool, ClassifiedTool, Workflow }      from '@mcpify/schema-engine';
+import { sanitizeToolName }                                  from '@mcpify/schema-engine';
 
 import {
   registerClients,
@@ -226,6 +227,7 @@ export async function runAnalysis(rootPath: string, opts: AnalyzeOptions) {
 function namespaceDuplicateTools(tools: ExtractedTool[]): ExtractedTool[] {
   const counts = new Map<string, number>();
   for (const tool of tools) {
+    tool.name = sanitizeToolName(tool.name);
     counts.set(tool.name, (counts.get(tool.name) ?? 0) + 1);
   }
 

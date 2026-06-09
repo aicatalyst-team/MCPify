@@ -49,6 +49,11 @@ export class EventAnalyzer {
         '!' + path.join(rootPath, '**/dist/**'),
         '!' + path.join(rootPath, '**/build/**'),
         '!' + path.join(rootPath, '**/.next/**'),
+        '!' + path.join(rootPath, '**/.svelte-kit/**'),
+        '!' + path.join(rootPath, '**/.nuxt/**'),
+        '!' + path.join(rootPath, '**/coverage/**'),
+        '!' + path.join(rootPath, '**/out/**'),
+        '!' + path.join(rootPath, '**/.turbo/**'),
         '!' + path.join(rootPath, '**/.mcpify/**'),
       ]);
     }
@@ -239,8 +244,14 @@ function shouldSkip(sourceFile: SourceFile): boolean {
   const filePath = sourceFile.getFilePath().replace(/\\/g, '/');
   return filePath.includes('/node_modules/') ||
     filePath.includes('/dist/') ||
-    filePath.includes('/.mcpify/') ||
+    filePath.includes('/build/') ||
     filePath.includes('/.next/') ||
+    filePath.includes('/.svelte-kit/') ||
+    filePath.includes('/.nuxt/') ||
+    filePath.includes('/coverage/') ||
+    filePath.includes('/out/') ||
+    filePath.includes('/.turbo/') ||
+    filePath.includes('/.mcpify/') ||
     /\.(test|spec)\.(ts|tsx|js|jsx)$/.test(filePath) ||
     filePath.endsWith('.d.ts');
 }

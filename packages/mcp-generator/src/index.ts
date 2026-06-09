@@ -30,6 +30,19 @@ export class MCPGenerator {
     tools:     ClassifiedTool[],
     workflows: Workflow[]
   ): Promise<GenerationOutput> {
+    if (tools.length === 0) {
+      tools.push({
+        name: 'mcpifyHealth',
+        source: 'backend',
+        description: 'Health check tool injected by MCPify because no other tools were found in this workspace.',
+        params: [],
+        paramTypes: [],
+        returnType: 'string',
+        filePath: 'MCPifyInternal',
+        permission: 'SAFE',
+        isAsync: false,
+      });
+    }
     await fs.mkdir(this.outDir, { recursive: true });
 
     const files: string[] = [];
@@ -811,6 +824,9 @@ function tryJson(text: string): unknown {
     if (tool.source === 'event') {
       return `return await invokeEventTool(${JSON.stringify(tool.name)}, args as Record<string, unknown>);`;
     }
+    if (tool.name === 'mcpifyHealth') {
+      return `return "MCPify Health Check OK";`;
+    }
     return `throw new Error('no source binding was generated for tool: ${tool.name}');`;
   }
 
@@ -1134,6 +1150,7 @@ function bindableBackendTools(tools: ClassifiedTool[]): ClassifiedTool[] {
     tool.source === 'backend' &&
     tool.permission !== 'BLOCKED' &&
     Boolean(tool.filePath) &&
+    tool.filePath !== 'MCPifyInternal' &&
     isValidIdentifier(tool.name.replace(/_/g, '$'))
   );
 }
