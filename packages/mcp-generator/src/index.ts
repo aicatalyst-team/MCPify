@@ -145,7 +145,7 @@ export class MCPGenerator {
 
   private _distEntry(fileName: string, tools: ClassifiedTool[]): string {
     const sourceRoot = this._sourceRoot(tools);
-    const outDirFromRoot = relativePath(sourceRoot, this.outDir);
+    const outDirFromRoot = relativePath(sourceRoot, this.outDir).replace(/\\/g, '/');
     return path.posix
       .join('./dist', outDirFromRoot === '.' ? '' : outDirFromRoot, fileName)
       .replace(/\/+/g, '/');
@@ -420,8 +420,8 @@ async function invokeApiTool(name: string, args: Record<string, unknown>): Promi
   const def = API_TOOL_DEFS[name];
   if (!def) throw new Error(\`missing API metadata for tool: \${name}\`);
 
-  const pathParamNames = [...def.path.matchAll(/\\{([^}]+)\\}/g)].map(match => match[1]);
-  let apiPath = def.path.replace(/\\{([^}]+)\\}/g, (_, key: string) => {
+  const pathParamNames = [...def.path.matchAll(/\{([^}]+)\}/g)].map(match => match[1]);
+  let apiPath = def.path.replace(/\{([^}]+)\}/g, (_, key: string) => {
     const value = args[key];
     if (value === undefined || value === null) return \`{\${key}}\`;
     return encodeURIComponent(String(value));
@@ -1121,8 +1121,7 @@ function bindableBackendTools(tools: ClassifiedTool[]): ClassifiedTool[] {
     tool.source === 'backend' &&
     tool.permission !== 'BLOCKED' &&
     Boolean(tool.filePath) &&
-    isValidIdentifier(tool.name) &&
-    !tool.name.includes('_')
+    isValidIdentifier(tool.name.replace(/_/g, '$'))
   );
 }
 

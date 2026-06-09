@@ -229,8 +229,7 @@ function codexBlockRegex(serverName: string): RegExp {
   // Match  [mcp_servers.name]  or  [mcp_servers."name"]  up to (but excluding)
   // the next top-level table header or end of file.
   return new RegExp(
-    String.raw`\[mcp_servers\.(?:"${escaped}"|${escaped})\][\s\S]*?(?=\n\[|\s*$)`,
-    'm'
+    String.raw`\[mcp_servers\.(?:"${escaped}"|${escaped})\][\s\S]*?(?=\n\[|\s*$)`
   );
 }
 

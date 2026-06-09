@@ -105,19 +105,20 @@ const TS_TO_ZOD: Record<string, string> = {
 function tsTypeToZod(tsType: string): string {
   const trimmed = tsType.trim();
   if (TS_TO_ZOD[trimmed]) return TS_TO_ZOD[trimmed];
-  // Union types  e.g. 'pending' | 'active' | 'cancelled'
-  if (trimmed.includes('|')) {
-    const members = trimmed.split('|').map(m => m.trim().replace(/^['"]|['"]$/g, ''));
-    if (members.every(m => /^[a-z_][a-z0-9_]*$/i.test(m) || /^'[^']+'$/.test(m))) {
-      return `z.enum([${members.map(m => `'${m}'`).join(', ')}])`;
-    }
-  }
   // Array generics e.g. Array<string>
   const arrayMatch = trimmed.match(/^Array<(.+)>$/);
   if (arrayMatch) return `z.array(${tsTypeToZod(arrayMatch[1])})`;
-  // Optional e.g. string | undefined
+  // Optional — must be checked BEFORE generic union so "string | undefined" → .optional()
   if (trimmed.endsWith('| undefined')) {
-    return `${tsTypeToZod(trimmed.replace('| undefined', '').trim())}.optional()`;
+    return `${tsTypeToZod(trimmed.replace(/\s*\|\s*undefined$/, '').trim())}.optional()`;
+  }
+  // String literal union types e.g. 'pending' | 'active' | 'cancelled'
+  if (trimmed.includes('|')) {
+    const members = trimmed.split('|').map(m => m.trim().replace(/^['"]|['"]$/g, ''));
+    // Only generate z.enum when all members are simple identifiers or kebab/snake-case strings
+    if (members.every(m => /^[a-z0-9_-]+$/i.test(m) && m.length > 0)) {
+      return `z.enum([${members.map(m => `'${m}'`).join(', ')}])`;
+    }
   }
   return 'z.unknown()';
 }

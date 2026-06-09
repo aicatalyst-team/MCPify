@@ -220,7 +220,6 @@ const VERB_DESCRIPTIONS: Record<string, string> = {
   notify:     'Sends a notification about',
   invite:     'Invites',
   checkout:   'Processes checkout for',
-  checkout2:  'Initiates checkout of',
   duplicate:  'Creates a copy of',
 };
 

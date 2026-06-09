@@ -320,6 +320,8 @@ function clampPermission(
   maxPermission?: PermissionLevel
 ): PermissionLevel {
   if (!maxPermission) return permission;
+  // Higher rank = more permissive (BLOCKED=0, CONFIRM=1, SAFE=2).
+  // maxPermission is a ceiling: if the tool is MORE permissive than allowed, cap it.
   return permissionRank(permission) > permissionRank(maxPermission)
     ? maxPermission
     : permission;

@@ -214,7 +214,7 @@ export async function runAnalysis(rootPath: string, opts: AnalyzeOptions) {
 
   // ── Watch mode ────────────────────────────────────────────────────────────
   if (opts.watch) {
-    const { startWatcher } = await import('../../src/watcher.js');
+    const { startWatcher } = await import('../watcher.js');
     await startWatcher(absRoot, outDir, opts);
   }
 }
