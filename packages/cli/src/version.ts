@@ -8,7 +8,7 @@ function readVersion(): string {
     // dist/version.js → ../package.json after build; src/version.ts → ../package.json
     return (require('../package.json') as { version: string }).version;
   } catch {
-    return '1.0.0';
+    return '1.0.2';
   }
 }
 
