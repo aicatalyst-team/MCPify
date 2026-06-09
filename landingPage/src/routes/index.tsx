@@ -187,7 +187,7 @@ function Hero() {
             MCPify automatically transforms applications, APIs, frontends, workflows, and databases into AI-native systems for autonomous agents.
           </p>
 
-          <CopyCommand command="npx mcpify-cli analyze" />
+          <CopyCommand command="npm run mcpify -- analyze ." />
 
           <div className="mt-9 flex items-center justify-center gap-3 flex-wrap">
             <a
