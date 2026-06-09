@@ -146,9 +146,10 @@ export class MCPGenerator {
   private _distEntry(fileName: string, tools: ClassifiedTool[]): string {
     const sourceRoot = this._sourceRoot(tools);
     const outDirFromRoot = relativePath(sourceRoot, this.outDir).replace(/\\/g, '/');
-    return path.posix
-      .join('./dist', outDirFromRoot === '.' ? '' : outDirFromRoot, fileName)
+    const joined = path.posix
+      .join('dist', outDirFromRoot === '.' ? '' : outDirFromRoot, fileName)
       .replace(/\/+/g, '/');
+    return joined.startsWith('./') ? joined : `./${joined}`;
   }
 
   private _renderTools(tools: ClassifiedTool[]): string {
@@ -686,7 +687,13 @@ function modelNameFromToolName(name: string): string {
     name.match(/^get([A-Z].+)sBy[A-Z]/);
 
   const raw = match?.[1] ?? 'Record';
-  const singular = raw.endsWith('s') ? raw.slice(0, -1) : raw;
+  // Safe singularise: only strip trailing 's' when the word genuinely looks plural
+  // (avoids mangling Status→Statu, Address→Addres, etc.)
+  const singular =
+    raw.endsWith('ies') ? \`\${raw.slice(0, -3)}y\` :
+    (raw.endsWith('s') && !raw.endsWith('ss') && !raw.endsWith('us') && !raw.endsWith('is') && raw.length > 3)
+      ? raw.slice(0, -1)
+      : raw;
   if (singular === 'OrderItem') return 'orderItems';
   if (singular === 'SupportTicket') return 'supportTickets';
   return \`\${lowerFirst(singular)}s\`;
@@ -779,7 +786,13 @@ function tryJson(text: string): unknown {
       toolName.match(/^get([A-Z].+)sBy[A-Z]/);
 
     const raw = match?.[1] ?? 'Record';
-    const singular = raw.endsWith('s') ? raw.slice(0, -1) : raw;
+    // Safe singularise: only strip trailing 's' when the word genuinely looks plural
+    // (avoids mangling Status→Statu, Address→Addres, etc.)
+    const singular =
+      raw.endsWith('ies') ? `${raw.slice(0, -3)}y` :
+      (raw.endsWith('s') && !raw.endsWith('ss') && !raw.endsWith('us') && !raw.endsWith('is') && raw.length > 3)
+        ? raw.slice(0, -1)
+        : raw;
     if (singular === 'OrderItem') return 'orderItems';
     if (singular === 'SupportTicket') return 'supportTickets';
     return `${singular.charAt(0).toLowerCase()}${singular.slice(1)}s`;

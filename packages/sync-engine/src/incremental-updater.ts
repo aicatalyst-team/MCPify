@@ -248,8 +248,13 @@ export class IncrementalUpdater {
       : await new WorkflowEngine(tools).extract();
 
     const classified = new PermissionLayer().classify([...tools, ...workflows]);
-    const classifiedTools = classified.filter(tool => tool.source !== 'workflow') as ClassifiedTool[];
-    const classifiedWorkflows = classified.filter(tool => tool.source === 'workflow') as Workflow[];
+    const classifiedTools = classified.filter(t => t.source !== 'workflow') as ClassifiedTool[];
+    // Merge classified permission/safetyNotes back onto the original Workflow objects
+    // (which carry `steps`) to avoid losing steps through the ClassifiedTool cast.
+    const workflowByName = new Map(workflows.map(w => [w.name, w]));
+    const classifiedWorkflows: Workflow[] = classified
+      .filter(t => t.source === 'workflow')
+      .map(t => ({ ...workflowByName.get(t.name)!, ...t }));
     const finalTools = await this.enhanceTools(classifiedTools);
     const output = await new MCPGenerator(this.outDir).generate(finalTools, classifiedWorkflows);
 

@@ -235,7 +235,7 @@ export function ruleBasedDescription(name: string): string {
     return `${verbDesc} ${noun}.`;
   }
   // Fallback: just title-case and add a period
-  return words.map((w, i) => i === 0 ? w : w).join(' ') + '.';
+  return words.map((w, i) => i === 0 ? w[0].toUpperCase() + w.slice(1) : w).join(' ') + '.';
 }
 
 /** Apply rule-based descriptions to any tools missing one */

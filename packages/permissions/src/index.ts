@@ -70,7 +70,7 @@ const CONFIRM_PATTERNS: RegExp[] = [
   /purchase/i,
   /subscribe/i,
   /unsubscribe/i,
-  /ban/i,
+  /\bban\b/i,
   /suspend/i,
   /promote/i,
   /demote/i,
@@ -224,8 +224,10 @@ export class PermissionLayer {
     if (tool.source === 'workflow') {
       const steps: string[] = (tool as Workflow).steps ?? [];
       if (steps.some(s => EXACT_OVERRIDES[s] === 'BLOCKED')) return 'BLOCKED';
-      if (steps.some(s => CONFIRM_PATTERNS.some(p => p.test(s))))
-        return 'REQUIRES_CONFIRMATION';
+      if (steps.some(s =>
+        EXACT_OVERRIDES[s] === 'REQUIRES_CONFIRMATION' ||
+        CONFIRM_PATTERNS.some(p => p.test(s))
+      )) return 'REQUIRES_CONFIRMATION';
     }
 
     // ── 4. Confirm patterns ───────────────────────────────────────────────

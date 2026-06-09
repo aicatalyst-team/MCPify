@@ -119,7 +119,8 @@ export class BackendAnalyzer {
     for (const cls of sf.getClasses()) {
       if (!cls.isExported()) continue;
       for (const method of cls.getMethods()) {
-        if (method.getScope() !== 'public' && method.getScope() !== undefined) continue;
+        const scope = method.getScope();
+        if (scope === 'private' || scope === 'protected') continue;
         const name = `${cls.getName()}_${method.getName()}`;
         tools.push({
           name,
