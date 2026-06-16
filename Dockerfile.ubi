@@ -22,6 +22,9 @@ COPY packages/monitoring/package.json packages/monitoring/
 COPY packages/sync-engine/package.json packages/sync-engine/
 COPY packages/cli/package.json packages/cli/
 
+# Switch to root for install and build (UBI nodejs images default to non-root)
+USER 0
+
 # Install all dependencies
 RUN npm ci
 
