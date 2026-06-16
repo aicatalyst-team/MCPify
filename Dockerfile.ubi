@@ -1,0 +1,42 @@
+# MCPify UBI-based Dockerfile for OpenShift deployment
+# CLI tool that analyzes codebases and generates MCP servers
+FROM registry.access.redhat.com/ubi9/nodejs-22
+
+WORKDIR /opt/app-root/src
+
+# Copy package files first for layer caching
+COPY package.json package-lock.json tsconfig.base.json ./
+
+# Copy all workspace package.json files
+COPY packages/schema-engine/package.json packages/schema-engine/
+COPY packages/backend-analyzer/package.json packages/backend-analyzer/
+COPY packages/frontend-analyzer/package.json packages/frontend-analyzer/
+COPY packages/event-analyzer/package.json packages/event-analyzer/
+COPY packages/graph-engine/package.json packages/graph-engine/
+COPY packages/workflow-engine/package.json packages/workflow-engine/
+COPY packages/permissions/package.json packages/permissions/
+COPY packages/mcp-generator/package.json packages/mcp-generator/
+COPY packages/ai-enhancer/package.json packages/ai-enhancer/
+COPY packages/security/package.json packages/security/
+COPY packages/monitoring/package.json packages/monitoring/
+COPY packages/sync-engine/package.json packages/sync-engine/
+COPY packages/cli/package.json packages/cli/
+
+# Install all dependencies
+RUN npm ci
+
+# Copy full source code
+COPY . .
+
+# Build the monorepo (sequential workspace builds)
+RUN npm run build
+
+# OpenShift compatibility: group 0 permissions for arbitrary UID
+RUN chgrp -R 0 /opt/app-root && chmod -R g=u /opt/app-root
+
+# No EXPOSE - CLI tool, not a server
+
+USER 1001
+
+ENTRYPOINT ["node", "packages/cli/dist/index.js"]
+CMD ["--help"]

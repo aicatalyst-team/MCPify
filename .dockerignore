@@ -1,0 +1,14 @@
+.git
+*.md
+LICENSE
+node_modules
+**/node_modules
+**/dist
+**/.turbo
+.github
+.mds
+demo
+landingPage
+apps
+docs
+scripts
