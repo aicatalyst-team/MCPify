@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mcpify-analyze
+  namespace: poc-mcpify
+  labels:
+    app: mcpify
+    autopoc.io/project: mcpify
+spec:
+  backoffLimit: 1
+  activeDeadlineSeconds: 300
+  template:
+    spec:
+      containers:
+        - name: mcpify
+          image: quay.io/aicatalyst/mcpify:latest
+          imagePullPolicy: Always
+          command: ["node", "packages/cli/dist/index.js"]
+          args:
+            - "analyze"
+            - "./examples/ecommerce-saas"
+            - "--output"
+            - "./examples/ecommerce-saas/.mcpify"
+            - "--prisma"
+            - "./examples/ecommerce-saas/prisma/schema.prisma"
+            - "--swagger"
+            - "./examples/ecommerce-saas/openapi.json"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+      imagePullSecrets:
+        - name: autopoc-registry-pull
+      restartPolicy: Never
